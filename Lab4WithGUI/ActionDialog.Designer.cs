@@ -69,6 +69,7 @@
 			this.stepListBox.Name = "stepListBox";
 			this.stepListBox.Size = new System.Drawing.Size(130, 82);
 			this.stepListBox.TabIndex = 7;
+			this.stepListBox.SelectedIndexChanged += new System.EventHandler(this.stepListBox_SelectedIndexChanged);
 			// 
 			// label3
 			// 
@@ -91,6 +92,7 @@
 			// 
 			// editBtn
 			// 
+			this.editBtn.Enabled = false;
 			this.editBtn.Location = new System.Drawing.Point(148, 81);
 			this.editBtn.Name = "editBtn";
 			this.editBtn.Size = new System.Drawing.Size(75, 23);
@@ -101,12 +103,14 @@
 			// 
 			// removeBtn
 			// 
+			this.removeBtn.Enabled = false;
 			this.removeBtn.Location = new System.Drawing.Point(148, 110);
 			this.removeBtn.Name = "removeBtn";
 			this.removeBtn.Size = new System.Drawing.Size(75, 23);
 			this.removeBtn.TabIndex = 4;
 			this.removeBtn.Text = "Remove";
 			this.removeBtn.UseVisualStyleBackColor = true;
+			this.removeBtn.Click += new System.EventHandler(this.removeBtn_Click);
 			// 
 			// nameTb
 			// 

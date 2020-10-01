@@ -18,6 +18,11 @@ namespace Lab4WithGUI
 			InitializeComponent();
 		}
 
+		private void actionListbox_SelectedIndexChanged_1(object sender, EventArgs e)
+		{
+			editBtn.Enabled = removeBtn.Enabled = runBtn.Enabled = actionListbox.SelectedIndex >= 0;
+		}
+
 		private void addBtn_Click(object sender, EventArgs e)
 		{
 			var dlg = new ActionDialog();
@@ -26,6 +31,30 @@ namespace Lab4WithGUI
 				actions.Add(dlg.Action); ;
 				actionListbox.Items.Add(dlg.Action.Name);
 			}
+		}
+
+		private void editBtn_Click(object sender, EventArgs e)
+		{
+			var dlg = new ActionDialog();
+			dlg.Action = actions[actionListbox.SelectedIndex];
+			if (DialogResult.OK == dlg.ShowDialog())
+			{
+				actions[actionListbox.SelectedIndex] = dlg.Action;
+				updateControls();
+			}
+		}
+
+		private void removeBtn_Click(object sender, EventArgs e)
+		{
+			actions.RemoveAt(actionListbox.SelectedIndex);
+			updateControls();
+		}
+
+		private void updateControls()
+		{
+			actionListbox.Items.Clear();
+			foreach (var action in actions)
+				actionListbox.Items.Add(action.Name);
 		}
 	}
 }

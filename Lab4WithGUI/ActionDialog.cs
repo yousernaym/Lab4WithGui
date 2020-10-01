@@ -29,6 +29,7 @@ namespace Lab4WithGUI
 			stepListBox.Items.Clear();
 			foreach (var step in action.Steps)
 				stepListBox.Items.Add(step.Name);
+
 		}
 
 		public ActionDialog()
@@ -39,6 +40,11 @@ namespace Lab4WithGUI
 
 		private void okBtn_Click(object sender, EventArgs e)
 		{
+			if (string.IsNullOrWhiteSpace(nameTb.Text))
+			{
+				MessageBox.Show("Name field cannot be empty");
+				return;
+			}
 			DialogResult = DialogResult.OK;
 			Close();
 		}
@@ -61,17 +67,23 @@ namespace Lab4WithGUI
 		private void editBtn_Click(object sender, EventArgs e)
 		{
 			var dlg = new ActionStepDialog();
-			if (stepListBox.SelectedIndex == -1)
-			{
-				MessageBox.Show("No list entry selected");
-				return;
-			}
 			dlg.Step = action.Steps[stepListBox.SelectedIndex];
 			if (DialogResult.OK == dlg.ShowDialog())
 			{
 				action.Steps[stepListBox.SelectedIndex] = dlg.Step;
 				updateControls();
 			}
+		}
+
+		private void removeBtn_Click(object sender, EventArgs e)
+		{
+			action.Steps.RemoveAt(stepListBox.SelectedIndex);
+			updateControls();
+		}
+
+		private void stepListBox_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			editBtn.Enabled = removeBtn.Enabled = stepListBox.SelectedIndex >= 0;
 		}
 	}
 }

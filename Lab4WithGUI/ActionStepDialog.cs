@@ -52,6 +52,11 @@ namespace Lab4WithGUI
 
 		private void okBtn_Click(object sender, EventArgs e)
 		{
+			if (string.IsNullOrWhiteSpace(nameTb.Text))
+			{
+				MessageBox.Show("Name field cannot be empty");
+				return;
+			}
 			DialogResult = DialogResult.OK;
 			Close();
 		}
