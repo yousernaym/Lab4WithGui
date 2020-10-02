@@ -17,6 +17,5 @@ namespace Lab4WithGUI
 		{
 			InitializeComponent();
 		}
-
 	}
 }
