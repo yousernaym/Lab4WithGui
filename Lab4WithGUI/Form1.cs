@@ -14,66 +14,60 @@ namespace Lab4WithGUI
 {
 	public partial class Form1 : Form
 	{
-		SerialPort serialPort = new SerialPort();
+		SerialPort serialPort => Program.SerialPort;
 		public Form1()
 		{
 			InitializeComponent();
-			var portDlg = new PortDialog();
-			if (DialogResult.OK == portDlg.ShowDialog())
-				return;
-			serialPort.PortName = portDlg.PortName;
-			serialPort.BaudRate = 9600;
-			try
-			{
-				serialPort.Open();
-			}
-			catch (IOException)
-			{
-				MessageBox.Show("Couldn't connect");
-			}
 		}
 
-		private void activateState(char state, char subState)
+		private void setState(uint time, char state, char subState)
 		{
-			string command = $"!{state}{subState}\n";
-			serialPort.Write(command);
+			sendCommand(time, $"s{state}{subState}");
+		}
+
+		//Sends specified command to device.
+		//Device stores command <time> seconds before executing it.
+		//Commands always start with ! and end with \n
+		private void sendCommand(uint time, string command)
+		{
+			string serializedTime = $"{(char)time}{(char)(time >> 8)}{(char)(time >> 16)}{(char)(time >> 24)}";
+			string message = $"!{serializedTime}{command}\n";
+			serialPort.Write(message);
 		}
 
 		private void colorBtn_Click(object sender, EventArgs e)
 		{
 			if (DialogResult.OK == colorDialog1.ShowDialog())
-				colorBtn.BackColor = colorDialog1.Color;
-		}
-
-		
-		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-		{
-			serialPort.Close();
+			{
+				Color c = colorBtn.BackColor = colorDialog1.Color;
+				sendCommand(0, $"c{(char)c.R}{(char)c.G}{(char)c.B}");
+			}
 		}
 
 		private void singleColorRb_Click(object sender, EventArgs e)
 		{
 			singleColorPanel.Enabled = true;
 			speedPanel.Enabled = blinkRb.Checked;
-			activateState((char)0, (char)(constantRb.Checked ? 0 : 1));
+			setState(0, (char)0, (char)(constantRb.Checked ? 0 : 1));
 		}
+
 		private void rainbowRb_Click(object sender, EventArgs e)
 		{
 			singleColorPanel.Enabled = false;
 			speedPanel.Enabled = true;
-			activateState((char)1, (char)0);
+			setState(0, (char)1, (char)0);
 		}
 
 		private void constantRb_Click(object sender, EventArgs e)
 		{
 			speedPanel.Enabled = false;
-			activateState((char)0, (char)0);
+			setState(0, (char)0, (char)0);
 		}
 
 		private void blinkRb_Click(object sender, EventArgs e)
 		{
 			speedPanel.Enabled = true;
-			activateState((char)0, (char)1);
+			setState(0, (char)0, (char)1);
 		}
 
 

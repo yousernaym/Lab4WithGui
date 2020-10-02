@@ -188,7 +188,6 @@
 			this.Controls.Add(this.statePanel);
 			this.Name = "Form1";
 			this.Text = "Lab4 UI";
-			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
 			this.panel1.ResumeLayout(false);
 			this.panel1.PerformLayout();
 			this.statePanel.ResumeLayout(false);

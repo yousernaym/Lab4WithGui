@@ -20,7 +20,7 @@ namespace Lab4WithGUI
 
 		private void okBtn_Click(object sender, EventArgs e)
 		{
-			Hide();
+			DialogResult = DialogResult.OK;
 		}
 	}
 }
