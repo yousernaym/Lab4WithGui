@@ -28,7 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.state0Rb = new System.Windows.Forms.RadioButton();
+			this.singleColorRb = new System.Windows.Forms.RadioButton();
 			this.rainbowRb = new System.Windows.Forms.RadioButton();
 			this.blinkRb = new System.Windows.Forms.RadioButton();
 			this.constantRb = new System.Windows.Forms.RadioButton();
@@ -40,6 +40,7 @@
 			this.label2 = new System.Windows.Forms.Label();
 			this.singleColorPanel = new System.Windows.Forms.Panel();
 			this.speedPanel = new System.Windows.Forms.Panel();
+			this.colorDialog1 = new System.Windows.Forms.ColorDialog();
 			this.panel1.SuspendLayout();
 			this.statePanel.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.speedTrackbar)).BeginInit();
@@ -47,18 +48,18 @@
 			this.speedPanel.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// state0Rb
+			// singleColorRb
 			// 
-			this.state0Rb.AutoSize = true;
-			this.state0Rb.Checked = true;
-			this.state0Rb.Location = new System.Drawing.Point(3, 3);
-			this.state0Rb.Name = "state0Rb";
-			this.state0Rb.Size = new System.Drawing.Size(81, 17);
-			this.state0Rb.TabIndex = 0;
-			this.state0Rb.TabStop = true;
-			this.state0Rb.Text = "Single Color";
-			this.state0Rb.UseVisualStyleBackColor = true;
-			this.state0Rb.CheckedChanged += new System.EventHandler(this.singleColorRb_CheckedChanged);
+			this.singleColorRb.AutoSize = true;
+			this.singleColorRb.Checked = true;
+			this.singleColorRb.Location = new System.Drawing.Point(3, 3);
+			this.singleColorRb.Name = "singleColorRb";
+			this.singleColorRb.Size = new System.Drawing.Size(81, 17);
+			this.singleColorRb.TabIndex = 0;
+			this.singleColorRb.TabStop = true;
+			this.singleColorRb.Text = "Single Color";
+			this.singleColorRb.UseVisualStyleBackColor = true;
+			this.singleColorRb.Click += new System.EventHandler(this.singleColorRb_Click);
 			// 
 			// rainbowRb
 			// 
@@ -69,7 +70,7 @@
 			this.rainbowRb.TabIndex = 1;
 			this.rainbowRb.Text = "Rainbow";
 			this.rainbowRb.UseVisualStyleBackColor = true;
-			this.rainbowRb.CheckedChanged += new System.EventHandler(this.rainbowRb_CheckedChanged);
+			this.rainbowRb.Click += new System.EventHandler(this.rainbowRb_Click);
 			// 
 			// blinkRb
 			// 
@@ -80,7 +81,7 @@
 			this.blinkRb.TabIndex = 2;
 			this.blinkRb.Text = "Blink";
 			this.blinkRb.UseVisualStyleBackColor = true;
-			this.blinkRb.CheckedChanged += new System.EventHandler(this.blinkRb_CheckedChanged);
+			this.blinkRb.Click += new System.EventHandler(this.blinkRb_Click);
 			// 
 			// constantRb
 			// 
@@ -93,7 +94,7 @@
 			this.constantRb.TabStop = true;
 			this.constantRb.Text = "Constant light";
 			this.constantRb.UseVisualStyleBackColor = true;
-			this.constantRb.CheckedChanged += new System.EventHandler(this.constantRb_CheckedChanged);
+			this.constantRb.Click += new System.EventHandler(this.constantRb_Click);
 			// 
 			// panel1
 			// 
@@ -108,7 +109,7 @@
 			// 
 			this.statePanel.BackColor = System.Drawing.SystemColors.Control;
 			this.statePanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			this.statePanel.Controls.Add(this.state0Rb);
+			this.statePanel.Controls.Add(this.singleColorRb);
 			this.statePanel.Controls.Add(this.rainbowRb);
 			this.statePanel.Location = new System.Drawing.Point(12, 12);
 			this.statePanel.Name = "statePanel";
@@ -187,6 +188,7 @@
 			this.Controls.Add(this.statePanel);
 			this.Name = "Form1";
 			this.Text = "Lab4 UI";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
 			this.panel1.ResumeLayout(false);
 			this.panel1.PerformLayout();
 			this.statePanel.ResumeLayout(false);
@@ -202,7 +204,7 @@
 
 		#endregion
 
-		private System.Windows.Forms.RadioButton state0Rb;
+		private System.Windows.Forms.RadioButton singleColorRb;
 		private System.Windows.Forms.RadioButton rainbowRb;
 		private System.Windows.Forms.RadioButton blinkRb;
 		private System.Windows.Forms.RadioButton constantRb;
@@ -214,6 +216,7 @@
 		private System.Windows.Forms.Button colorBtn;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.Panel singleColorPanel;
+		private System.Windows.Forms.ColorDialog colorDialog1;
 	}
 }
 

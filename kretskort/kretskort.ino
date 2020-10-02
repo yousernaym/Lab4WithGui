@@ -18,10 +18,6 @@ void setup()
 
 void loop() 
 {
-  if (Serial.available())
-  {
-    char c = Serial.read();
-  }
   readSerialCommand();
   processCurrentState();  
 }
