@@ -30,11 +30,11 @@
 		{
 			this.state0Rb = new System.Windows.Forms.RadioButton();
 			this.rainbowRb = new System.Windows.Forms.RadioButton();
-			this.radioButton3 = new System.Windows.Forms.RadioButton();
-			this.radioButton4 = new System.Windows.Forms.RadioButton();
+			this.blinkRb = new System.Windows.Forms.RadioButton();
+			this.constantRb = new System.Windows.Forms.RadioButton();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.statePanel = new System.Windows.Forms.Panel();
-			this.trackBar1 = new System.Windows.Forms.TrackBar();
+			this.speedTrackbar = new System.Windows.Forms.TrackBar();
 			this.label1 = new System.Windows.Forms.Label();
 			this.colorBtn = new System.Windows.Forms.Button();
 			this.label2 = new System.Windows.Forms.Label();
@@ -42,7 +42,7 @@
 			this.speedPanel = new System.Windows.Forms.Panel();
 			this.panel1.SuspendLayout();
 			this.statePanel.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.speedTrackbar)).BeginInit();
 			this.singleColorPanel.SuspendLayout();
 			this.speedPanel.SuspendLayout();
 			this.SuspendLayout();
@@ -58,6 +58,7 @@
 			this.state0Rb.TabStop = true;
 			this.state0Rb.Text = "Single Color";
 			this.state0Rb.UseVisualStyleBackColor = true;
+			this.state0Rb.CheckedChanged += new System.EventHandler(this.singleColorRb_CheckedChanged);
 			// 
 			// rainbowRb
 			// 
@@ -66,37 +67,38 @@
 			this.rainbowRb.Name = "rainbowRb";
 			this.rainbowRb.Size = new System.Drawing.Size(67, 17);
 			this.rainbowRb.TabIndex = 1;
-			this.rainbowRb.TabStop = true;
 			this.rainbowRb.Text = "Rainbow";
 			this.rainbowRb.UseVisualStyleBackColor = true;
+			this.rainbowRb.CheckedChanged += new System.EventHandler(this.rainbowRb_CheckedChanged);
 			// 
-			// radioButton3
+			// blinkRb
 			// 
-			this.radioButton3.AutoSize = true;
-			this.radioButton3.Location = new System.Drawing.Point(0, 26);
-			this.radioButton3.Name = "radioButton3";
-			this.radioButton3.Size = new System.Drawing.Size(48, 17);
-			this.radioButton3.TabIndex = 2;
-			this.radioButton3.TabStop = true;
-			this.radioButton3.Text = "Blink";
-			this.radioButton3.UseVisualStyleBackColor = true;
+			this.blinkRb.AutoSize = true;
+			this.blinkRb.Location = new System.Drawing.Point(0, 26);
+			this.blinkRb.Name = "blinkRb";
+			this.blinkRb.Size = new System.Drawing.Size(48, 17);
+			this.blinkRb.TabIndex = 2;
+			this.blinkRb.Text = "Blink";
+			this.blinkRb.UseVisualStyleBackColor = true;
+			this.blinkRb.CheckedChanged += new System.EventHandler(this.blinkRb_CheckedChanged);
 			// 
-			// radioButton4
+			// constantRb
 			// 
-			this.radioButton4.AutoSize = true;
-			this.radioButton4.Checked = true;
-			this.radioButton4.Location = new System.Drawing.Point(0, 3);
-			this.radioButton4.Name = "radioButton4";
-			this.radioButton4.Size = new System.Drawing.Size(89, 17);
-			this.radioButton4.TabIndex = 3;
-			this.radioButton4.TabStop = true;
-			this.radioButton4.Text = "Constant light";
-			this.radioButton4.UseVisualStyleBackColor = true;
+			this.constantRb.AutoSize = true;
+			this.constantRb.Checked = true;
+			this.constantRb.Location = new System.Drawing.Point(0, 3);
+			this.constantRb.Name = "constantRb";
+			this.constantRb.Size = new System.Drawing.Size(89, 17);
+			this.constantRb.TabIndex = 3;
+			this.constantRb.TabStop = true;
+			this.constantRb.Text = "Constant light";
+			this.constantRb.UseVisualStyleBackColor = true;
+			this.constantRb.CheckedChanged += new System.EventHandler(this.constantRb_CheckedChanged);
 			// 
 			// panel1
 			// 
-			this.panel1.Controls.Add(this.radioButton3);
-			this.panel1.Controls.Add(this.radioButton4);
+			this.panel1.Controls.Add(this.blinkRb);
+			this.panel1.Controls.Add(this.constantRb);
 			this.panel1.Location = new System.Drawing.Point(3, 0);
 			this.panel1.Name = "panel1";
 			this.panel1.Size = new System.Drawing.Size(102, 46);
@@ -104,7 +106,7 @@
 			// 
 			// statePanel
 			// 
-			this.statePanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+			this.statePanel.BackColor = System.Drawing.SystemColors.Control;
 			this.statePanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.statePanel.Controls.Add(this.state0Rb);
 			this.statePanel.Controls.Add(this.rainbowRb);
@@ -113,16 +115,16 @@
 			this.statePanel.Size = new System.Drawing.Size(89, 51);
 			this.statePanel.TabIndex = 0;
 			// 
-			// trackBar1
+			// speedTrackbar
 			// 
-			this.trackBar1.LargeChange = 25;
-			this.trackBar1.Location = new System.Drawing.Point(8, 22);
-			this.trackBar1.Maximum = 100;
-			this.trackBar1.Name = "trackBar1";
-			this.trackBar1.Size = new System.Drawing.Size(278, 45);
-			this.trackBar1.TabIndex = 5;
-			this.trackBar1.TickFrequency = 10;
-			this.trackBar1.Value = 50;
+			this.speedTrackbar.LargeChange = 25;
+			this.speedTrackbar.Location = new System.Drawing.Point(8, 22);
+			this.speedTrackbar.Maximum = 100;
+			this.speedTrackbar.Name = "speedTrackbar";
+			this.speedTrackbar.Size = new System.Drawing.Size(278, 45);
+			this.speedTrackbar.TabIndex = 5;
+			this.speedTrackbar.TickFrequency = 10;
+			this.speedTrackbar.Value = 50;
 			// 
 			// label1
 			// 
@@ -141,6 +143,7 @@
 			this.colorBtn.Size = new System.Drawing.Size(75, 23);
 			this.colorBtn.TabIndex = 7;
 			this.colorBtn.UseVisualStyleBackColor = false;
+			this.colorBtn.Click += new System.EventHandler(this.colorBtn_Click);
 			// 
 			// label2
 			// 
@@ -153,7 +156,7 @@
 			// 
 			// singleColorPanel
 			// 
-			this.singleColorPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+			this.singleColorPanel.BackColor = System.Drawing.SystemColors.Control;
 			this.singleColorPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.singleColorPanel.Controls.Add(this.colorBtn);
 			this.singleColorPanel.Controls.Add(this.panel1);
@@ -167,7 +170,8 @@
 			// 
 			this.speedPanel.BackColor = System.Drawing.SystemColors.Control;
 			this.speedPanel.Controls.Add(this.label1);
-			this.speedPanel.Controls.Add(this.trackBar1);
+			this.speedPanel.Controls.Add(this.speedTrackbar);
+			this.speedPanel.Enabled = false;
 			this.speedPanel.Location = new System.Drawing.Point(12, 69);
 			this.speedPanel.Name = "speedPanel";
 			this.speedPanel.Size = new System.Drawing.Size(294, 73);
@@ -187,7 +191,7 @@
 			this.panel1.PerformLayout();
 			this.statePanel.ResumeLayout(false);
 			this.statePanel.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.speedTrackbar)).EndInit();
 			this.singleColorPanel.ResumeLayout(false);
 			this.singleColorPanel.PerformLayout();
 			this.speedPanel.ResumeLayout(false);
@@ -200,13 +204,13 @@
 
 		private System.Windows.Forms.RadioButton state0Rb;
 		private System.Windows.Forms.RadioButton rainbowRb;
-		private System.Windows.Forms.RadioButton radioButton3;
-		private System.Windows.Forms.RadioButton radioButton4;
+		private System.Windows.Forms.RadioButton blinkRb;
+		private System.Windows.Forms.RadioButton constantRb;
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.Panel speedPanel;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Panel statePanel;
-		private System.Windows.Forms.TrackBar trackBar1;
+		private System.Windows.Forms.TrackBar speedTrackbar;
 		private System.Windows.Forms.Button colorBtn;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.Panel singleColorPanel;

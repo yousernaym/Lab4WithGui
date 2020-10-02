@@ -17,5 +17,32 @@ namespace Lab4WithGUI
 		{
 			InitializeComponent();
 		}
+
+		private void rainbowRb_CheckedChanged(object sender, EventArgs e)
+		{
+			singleColorPanel.Enabled = false;
+			speedPanel.Enabled = true;
+		}
+
+		private void constantRb_CheckedChanged(object sender, EventArgs e)
+		{
+			speedPanel.Enabled = false;
+		}
+
+		private void blinkRb_CheckedChanged(object sender, EventArgs e)
+		{
+			speedPanel.Enabled = true;
+		}
+
+		private void colorBtn_Click(object sender, EventArgs e)
+		{
+
+		}
+
+		private void singleColorRb_CheckedChanged(object sender, EventArgs e)
+		{
+			singleColorPanel.Enabled = true;
+			speedPanel.Enabled = blinkRb.Checked;
+		}
 	}
 }
