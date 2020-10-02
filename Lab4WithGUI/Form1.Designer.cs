@@ -28,100 +28,20 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.actionListbox = new System.Windows.Forms.ListBox();
-			this.editBtn = new System.Windows.Forms.Button();
-			this.removeBtn = new System.Windows.Forms.Button();
-			this.addBtn = new System.Windows.Forms.Button();
-			this.label1 = new System.Windows.Forms.Label();
-			this.runBtn = new System.Windows.Forms.Button();
 			this.SuspendLayout();
-			// 
-			// actionListbox
-			// 
-			this.actionListbox.FormattingEnabled = true;
-			this.actionListbox.Location = new System.Drawing.Point(12, 27);
-			this.actionListbox.Name = "actionListbox";
-			this.actionListbox.Size = new System.Drawing.Size(120, 108);
-			this.actionListbox.TabIndex = 0;
-			this.actionListbox.SelectedIndexChanged += new System.EventHandler(this.actionListbox_SelectedIndexChanged_1);
-			// 
-			// editBtn
-			// 
-			this.editBtn.Enabled = false;
-			this.editBtn.Location = new System.Drawing.Point(138, 56);
-			this.editBtn.Name = "editBtn";
-			this.editBtn.Size = new System.Drawing.Size(75, 23);
-			this.editBtn.TabIndex = 1;
-			this.editBtn.Text = "Edit";
-			this.editBtn.UseVisualStyleBackColor = true;
-			this.editBtn.Click += new System.EventHandler(this.editBtn_Click);
-			// 
-			// removeBtn
-			// 
-			this.removeBtn.Enabled = false;
-			this.removeBtn.Location = new System.Drawing.Point(138, 85);
-			this.removeBtn.Name = "removeBtn";
-			this.removeBtn.Size = new System.Drawing.Size(75, 23);
-			this.removeBtn.TabIndex = 2;
-			this.removeBtn.Text = "Remove";
-			this.removeBtn.UseVisualStyleBackColor = true;
-			this.removeBtn.Click += new System.EventHandler(this.removeBtn_Click);
-			// 
-			// addBtn
-			// 
-			this.addBtn.Location = new System.Drawing.Point(138, 27);
-			this.addBtn.Name = "addBtn";
-			this.addBtn.Size = new System.Drawing.Size(75, 23);
-			this.addBtn.TabIndex = 3;
-			this.addBtn.Text = "Add";
-			this.addBtn.UseVisualStyleBackColor = true;
-			this.addBtn.Click += new System.EventHandler(this.addBtn_Click);
-			// 
-			// label1
-			// 
-			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(12, 9);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(42, 13);
-			this.label1.TabIndex = 4;
-			this.label1.Text = "Actions";
-			// 
-			// runBtn
-			// 
-			this.runBtn.Enabled = false;
-			this.runBtn.Location = new System.Drawing.Point(138, 114);
-			this.runBtn.Name = "runBtn";
-			this.runBtn.Size = new System.Drawing.Size(75, 23);
-			this.runBtn.TabIndex = 2;
-			this.runBtn.Text = "Run";
-			this.runBtn.UseVisualStyleBackColor = true;
 			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(229, 146);
-			this.Controls.Add(this.label1);
-			this.Controls.Add(this.addBtn);
-			this.Controls.Add(this.runBtn);
-			this.Controls.Add(this.removeBtn);
-			this.Controls.Add(this.editBtn);
-			this.Controls.Add(this.actionListbox);
 			this.Name = "Form1";
 			this.Text = "Lab4 UI";
 			this.ResumeLayout(false);
-			this.PerformLayout();
 
 		}
 
 		#endregion
-
-		private System.Windows.Forms.ListBox actionListbox;
-		private System.Windows.Forms.Button editBtn;
-		private System.Windows.Forms.Button removeBtn;
-		private System.Windows.Forms.Button addBtn;
-		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.Button runBtn;
 	}
 }
 
