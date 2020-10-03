@@ -1,14 +1,16 @@
-//Disclaimer 1:
+//Allmänna kommentarer:
+
 //Är inte van att skriva icke-OOP-kod men valde bort C++ för att träna på "riktig" embedded kodning.
 
-//Disclaimer 2:
-//Har man flera ino-filer slås allt ihop till en enda fil vilket kan skapa en del problem,
+//Har man flera ino-filer slås allt ihop till en enda fil vilket kan skapa en del problem
 //så jag gjorde ett zip library med cpp/h-filer.
 //Känns knasigt att behöva göra ett lib för att få struktur på koden, men men...
 
+//Försöker använda så små datatyper som möjligt för att spara minne. Mycket char.
+
 #include <stdbool.h>
 #include "deviceStates.h"
-#include "serial.h"
+#include "uart.h"
 
 void setup()
 {
@@ -18,6 +20,6 @@ void setup()
 
 void loop() 
 {
-  readSerialCommand();
+  readUartCommand();
   processCurrentState();  
 }

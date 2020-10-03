@@ -26,12 +26,12 @@ namespace Lab4WithGUI
 		}
 
 		//Sends specified command to device.
-		//Device stores command <time> seconds before executing it.
-		//Commands always start with ! and end with \n
+		//Adds ! to start and # to end of command
+		//<time> specifies how many seconds the device should wait before executing command
 		private void sendCommand(uint time, string command)
 		{
 			string serializedTime = $"{(char)time}{(char)(time >> 8)}{(char)(time >> 16)}{(char)(time >> 24)}";
-			string message = $"!{serializedTime}{command}\n";
+			string message = $"!{serializedTime}{command}#";
 			serialPort.Write(message);
 		}
 
