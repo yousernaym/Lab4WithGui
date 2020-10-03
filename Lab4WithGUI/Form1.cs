@@ -33,7 +33,7 @@ namespace Lab4WithGUI
 		{
 			InitializeComponent();
 			AllocConsole();
-			uartListener = new Thread(new ThreadStart(readUartCommand));
+			uartListener = new Thread(new ThreadStart(readUartCommands));
 			uartListener.Start();
 			
 			//Init device so that it matches app
@@ -52,6 +52,12 @@ namespace Lab4WithGUI
 		private void setState(uint time, int state, int subState)
 		{
 			sendCommand(time, $"s{(char)state}{(char)subState}");
+		}
+
+		//Sets color of single-color state
+		private void setColor(Color c)
+		{
+			sendCommand(0, $"c{(char)c.R}{(char)c.G}{(char)c.B}");
 		}
 
 		//Sends specified command to device.
@@ -75,16 +81,11 @@ namespace Lab4WithGUI
 				serialPort.Write(bytes.ToArray(), 0, bytes.Count);
 		}
 
-		//Selects color for single-color state
+		//Opens a ColorPicker to select color for single-color state
 		private void colorBtn_Click(object sender, EventArgs e)
 		{
 			if (DialogResult.OK == colorDialog1.ShowDialog())
 				setColor(colorBtn.BackColor = colorDialog1.Color);
-		}
-
-		private void setColor(Color c)
-		{
-			sendCommand(0, $"c{(char)c.R}{(char)c.G}{(char)c.B}");
 		}
 
 		//Switches to single-color state
@@ -113,7 +114,7 @@ namespace Lab4WithGUI
 
 		//Listens for messages from device and updates GUI to reflect device status
 		//Runs on background thread
-		private void readUartCommand()
+		private void readUartCommands()
 		{
 			string commandBuf = "";
 			const int BufSize = 50;
@@ -161,6 +162,8 @@ namespace Lab4WithGUI
 			}
 		}
 
+		//updates radio buttons in response to buttons on device
+		//Since this method is called from the background thread it needs to invoke the updates on UI thread
 		private void setGuiState(char state, char subState)
 		{
 			if (state == 0)
@@ -173,6 +176,7 @@ namespace Lab4WithGUI
 				blinkRb.Invoke(new Action(() => blinkRb.Checked = true));
 		}
 
+		//Updates color of color selection button in app in response to color selection button on device
 		private void setGuiColor(int color)
 		{
 			Color c = Color.FromArgb(color & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff);
@@ -191,7 +195,7 @@ namespace Lab4WithGUI
 			speedPanel.Enabled = blinkRb.Checked && singleColorRb.Checked || !singleColorRb.Checked;
 		}
 
-		//Updates which controls are enabled when single-color substate changes
+		//Enables/disables speed control when enabling/disabling blinking
 		private void constantRb_CheckedChanged(object sender, EventArgs e)
 		{
 			speedPanel.Enabled = !constantRb.Checked;
@@ -201,15 +205,16 @@ namespace Lab4WithGUI
 		private void speedTrackbar_Scroll(object sender, EventArgs e)
 		{
 			string command;
-			if (state == 0 && subState == 1) //Change blink speed
-				command = "b";
-			else if (state == 1) //Change fade speed
-				command = "f";
+			if (state == 0 && subState == 1) 
+				command = "b";  //Command for changing blink speed
+			else if (state == 1)
+				command = "f";  //Command for Changing fade speed
 			else
 				return;
 			sendCommand(0, command + (char)speedTrackbar.Value);
 		}
 
+		//Update color of ColorPicker when color of color selection button changes
 		private void colorBtn_BackColorChanged(object sender, EventArgs e)
 		{
 			colorDialog1.Color = colorBtn.BackColor;
