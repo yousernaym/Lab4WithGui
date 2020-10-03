@@ -59,6 +59,7 @@
 			this.singleColorRb.TabStop = true;
 			this.singleColorRb.Text = "Single Color";
 			this.singleColorRb.UseVisualStyleBackColor = true;
+			this.singleColorRb.CheckedChanged += new System.EventHandler(this.singleColorRb_CheckedChanged);
 			this.singleColorRb.Click += new System.EventHandler(this.singleColorRb_Click);
 			// 
 			// rainbowRb
@@ -94,6 +95,7 @@
 			this.constantRb.TabStop = true;
 			this.constantRb.Text = "Constant light";
 			this.constantRb.UseVisualStyleBackColor = true;
+			this.constantRb.CheckedChanged += new System.EventHandler(this.constantRb_CheckedChanged);
 			this.constantRb.Click += new System.EventHandler(this.constantRb_Click);
 			// 
 			// panel1
@@ -188,6 +190,7 @@
 			this.Controls.Add(this.statePanel);
 			this.Name = "Form1";
 			this.Text = "Lab4 UI";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
 			this.panel1.ResumeLayout(false);
 			this.panel1.PerformLayout();
 			this.statePanel.ResumeLayout(false);
