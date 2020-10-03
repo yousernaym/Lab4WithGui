@@ -126,7 +126,7 @@ namespace Lab4WithGUI
 						}
 						else if (command == 'c') //Set color
 						{
-							int color = commandBuf[1] | (commandBuf[2] << 8) | (commandBuf[3] << 16);
+							int color = (int)commandBuf[1] | (int)(commandBuf[2] << 8) | (int)(commandBuf[3] << 16);
 							setGuiColor(color);
 						}
 					}
@@ -152,7 +152,8 @@ namespace Lab4WithGUI
 
 		private void setGuiColor(int color)
 		{
-		
+			Color c = Color.FromArgb(color & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff);
+			colorBtn.Invoke(new Action(() => colorBtn.BackColor = c));
 		}
 
 		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
