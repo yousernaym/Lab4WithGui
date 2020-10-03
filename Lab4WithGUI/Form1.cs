@@ -35,6 +35,11 @@ namespace Lab4WithGUI
 			AllocConsole();
 			uartListener = new Thread(new ThreadStart(readUartCommand));
 			uartListener.Start();
+			
+			//Init device so that it matches app
+			singleColorRb.PerformClick();
+			constantRb.PerformClick();
+			setColor(colorBtn.BackColor = Color.Lime);
 		}
 
 		//Enable debug output
@@ -44,9 +49,9 @@ namespace Lab4WithGUI
 		static extern bool AllocConsole();
 
 		//Sets state of device
-		private void setState(uint time, char state, char subState)
+		private void setState(uint time, int state, int subState)
 		{
-			sendCommand(time, $"s{state}{subState}");
+			sendCommand(time, $"s{(char)state}{(char)subState}");
 		}
 
 		//Sends specified command to device.
@@ -74,34 +79,36 @@ namespace Lab4WithGUI
 		private void colorBtn_Click(object sender, EventArgs e)
 		{
 			if (DialogResult.OK == colorDialog1.ShowDialog())
-			{
-				Color c = colorBtn.BackColor = colorDialog1.Color;
-				sendCommand(0, $"c{(char)c.R}{(char)c.G}{(char)c.B}");
-			}
+				setColor(colorBtn.BackColor = colorDialog1.Color);
+		}
+
+		private void setColor(Color c)
+		{
+			sendCommand(0, $"c{(char)c.R}{(char)c.G}{(char)c.B}");
 		}
 
 		//Switches to single-color state
 		private void singleColorRb_Click(object sender, EventArgs e)
 		{
-			setState(0, (char)0, (char)(constantRb.Checked ? 0 : 1));
+			setState(0, 0, constantRb.Checked ? 0 : 1);
 		}
 
 		//Switches to rainbow state
 		private void rainbowRb_Click(object sender, EventArgs e)
 		{
-			setState(0, (char)1, (char)0);
+			setState(0, 1, 0);
 		}
 
 		//Switches to constant (non-blinking) substate
 		private void constantRb_Click(object sender, EventArgs e)
 		{
-			setState(0, (char)0, (char)0);
+			setState(0, 0, 0);
 		}
 
 		//Switches to blinking substate
 		private void blinkRb_Click(object sender, EventArgs e)
 		{
-			setState(0, (char)0, (char)1);
+			setState(0, 0, 1);
 		}
 
 		//Listens for messages from device and updates GUI to reflect device status
@@ -118,6 +125,7 @@ namespace Lab4WithGUI
 				{
 					if (serialPort.BytesToRead > 0)
 					{
+						//Console.WriteLine(serialPort.ReadExisting()); ;
 						readByte = serialPort.ReadByte();
 					}
 				}
@@ -125,7 +133,6 @@ namespace Lab4WithGUI
 				if (readByte >= 0)
 				{
 					char c = (char)readByte;
-					Console.Write(c);
 					if (c == '!')  //Start of a new message
 						commandBuf = "";
 					else if (c == '#' || commandBuf.Length == BufSize) //End of message, or message too long
@@ -201,6 +208,11 @@ namespace Lab4WithGUI
 			else
 				return;
 			sendCommand(0, command + (char)speedTrackbar.Value);
+		}
+
+		private void colorBtn_BackColorChanged(object sender, EventArgs e)
+		{
+			colorDialog1.Color = colorBtn.BackColor;
 		}
 	}
 }

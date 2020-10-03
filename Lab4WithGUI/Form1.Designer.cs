@@ -147,6 +147,7 @@
 			this.colorBtn.Size = new System.Drawing.Size(75, 23);
 			this.colorBtn.TabIndex = 7;
 			this.colorBtn.UseVisualStyleBackColor = false;
+			this.colorBtn.BackColorChanged += new System.EventHandler(this.colorBtn_BackColorChanged);
 			this.colorBtn.Click += new System.EventHandler(this.colorBtn_Click);
 			// 
 			// label2
