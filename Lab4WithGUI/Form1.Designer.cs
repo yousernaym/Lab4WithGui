@@ -120,14 +120,15 @@
 			// 
 			// speedTrackbar
 			// 
-			this.speedTrackbar.LargeChange = 25;
+			this.speedTrackbar.LargeChange = 64;
 			this.speedTrackbar.Location = new System.Drawing.Point(8, 22);
-			this.speedTrackbar.Maximum = 100;
+			this.speedTrackbar.Maximum = 255;
 			this.speedTrackbar.Name = "speedTrackbar";
 			this.speedTrackbar.Size = new System.Drawing.Size(278, 45);
 			this.speedTrackbar.TabIndex = 5;
-			this.speedTrackbar.TickFrequency = 10;
-			this.speedTrackbar.Value = 50;
+			this.speedTrackbar.TickFrequency = 32;
+			this.speedTrackbar.Value = 128;
+			this.speedTrackbar.Scroll += new System.EventHandler(this.speedTrackbar_Scroll);
 			// 
 			// label1
 			// 

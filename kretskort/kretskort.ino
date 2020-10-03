@@ -6,8 +6,6 @@
 //så jag gjorde ett zip library med cpp/h-filer.
 //Känns knasigt att behöva göra ett lib för att få struktur på koden, men men...
 
-//Försöker använda så små datatyper som möjligt för att spara minne. Mycket char.
-
 #include <stdbool.h>
 #include "deviceStates.h"
 #include "uart.h"

@@ -33,6 +33,7 @@ namespace Lab4WithGUI
 		
 		static bool initSerialPort()
 		{
+			SerialPort.BaudRate = 9600;
 			var portDlg = new PortDialog();
 			while (DialogResult.OK == portDlg.ShowDialog())
 			{

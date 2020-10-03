@@ -16,6 +16,10 @@ namespace Lab4WithGUI
 {
 	public partial class Form1 : Form
 	{
+		//Gets current state
+		int state => singleColorRb.Checked ? 0 : 1;
+		int subState => constantRb.Checked ? 0 : 1;
+
 		//Protects serial port from concurrent access from different threads
 		readonly object serialPortLock = new object(); 
 		
@@ -50,10 +54,20 @@ namespace Lab4WithGUI
 		//<time> specifies how many seconds the device should wait before executing the command
 		private void sendCommand(uint time, string command)
 		{
-			string serializedTime = $"{(char)time}{(char)(time >> 8)}{(char)(time >> 16)}{(char)(time >> 24)}";
-			string message = $"!{serializedTime}{command}#";
+			//Since we are sending binary data we need to send a byte array,
+			//because sending a string will mess up bytes with values > 127
+			List<byte> bytes = new List<byte>();
+			bytes.Add((byte)'!');
+			bytes.Add((byte)(time & 0xff));
+			bytes.Add((byte)((time >> 8) & 0xff));
+			bytes.Add((byte)((time >> 16) & 0xff));
+			bytes.Add((byte)((time >> 24) & 0xff));
+			for (int i = 0; i < command.Length; i++)
+				bytes.Add((byte)command[i]);
+			bytes.Add ((byte)'#');
+			
 			lock (serialPortLock)
-				serialPort.Write(message);
+				serialPort.Write(bytes.ToArray(), 0, bytes.Count);
 		}
 
 		//Selects color for single-color state
@@ -102,14 +116,16 @@ namespace Lab4WithGUI
 				int readByte = -1;
 				lock (serialPortLock)
 				{
-					//App closes port on shutdown in main thread so check if still open
-					if (serialPort.IsOpen && serialPort.BytesToRead > 0)
+					if (serialPort.BytesToRead > 0)
+					{
 						readByte = serialPort.ReadByte();
+					}
 				}
 				
 				if (readByte >= 0)
 				{
 					char c = (char)readByte;
+					Console.Write(c);
 					if (c == '!')  //Start of a new message
 						commandBuf = "";
 					else if (c == '#' || commandBuf.Length == BufSize) //End of message, or message too long
@@ -126,7 +142,7 @@ namespace Lab4WithGUI
 						}
 						else if (command == 'c') //Set color
 						{
-							int color = (int)commandBuf[1] | (int)(commandBuf[2] << 8) | (int)(commandBuf[3] << 16);
+							int color = commandBuf[1] | (commandBuf[2] << 8) | (commandBuf[3] << 16);
 							setGuiColor(color);
 						}
 					}
@@ -158,6 +174,7 @@ namespace Lab4WithGUI
 
 		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
 		{
+			uartListener.Abort();
 		}
 
 		//Updates which controls are enabled when main state changes
@@ -171,6 +188,19 @@ namespace Lab4WithGUI
 		private void constantRb_CheckedChanged(object sender, EventArgs e)
 		{
 			speedPanel.Enabled = !constantRb.Checked;
+		}
+
+		//Blink/Fade speed changed
+		private void speedTrackbar_Scroll(object sender, EventArgs e)
+		{
+			string command;
+			if (state == 0 && subState == 1) //Change blink speed
+				command = "b";
+			else if (state == 1) //Change fade speed
+				command = "f";
+			else
+				return;
+			sendCommand(0, command + (char)speedTrackbar.Value);
 		}
 	}
 }
