@@ -16,7 +16,6 @@ namespace Lab4WithGUI
 {
 	public partial class Form1 : Form
 	{
-		//Gets current state
 		int state => singleColorRb.Checked ? 0 : 1;
 		int subState => constantRb.Checked ? 0 : 1;
 
@@ -42,7 +41,7 @@ namespace Lab4WithGUI
 			setColor(colorBtn.BackColor = Color.Lime);
 		}
 
-		//Enable debug output
+		//Enables debug output
 		//Source: https://stackoverflow.com/questions/4362111/how-do-i-show-a-console-output-window-in-a-forms-application
 		[DllImport("kernel32.dll", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
@@ -65,7 +64,7 @@ namespace Lab4WithGUI
 		//<time> specifies how many seconds the device should wait before executing the command
 		private void sendCommand(uint time, string command)
 		{
-			//Since we are sending binary data we need to send a byte array,
+			//Since we are sending binary data it seems we need to send a byte array,
 			//because sending a string will mess up bytes with values > 127
 			List<byte> bytes = new List<byte>();
 			bytes.Add((byte)'!');
@@ -112,7 +111,7 @@ namespace Lab4WithGUI
 			setState(0, 0, 1);
 		}
 
-		//Listens for messages from device and updates GUI to reflect device status
+		//Listens for messages from device and updates GUI accordingly.
 		//Runs on background thread
 		private void readUartCommands()
 		{
@@ -150,8 +149,7 @@ namespace Lab4WithGUI
 						}
 						else if (command == 'c') //Set color
 						{
-							int color = commandBuf[1] | (commandBuf[2] << 8) | (commandBuf[3] << 16);
-							setGuiColor(color);
+							setGuiColor((byte)commandBuf[1], (byte)commandBuf[2], (byte)commandBuf[3]);
 						}
 					}
 					else
@@ -176,32 +174,36 @@ namespace Lab4WithGUI
 				blinkRb.Invoke(new Action(() => blinkRb.Checked = true));
 		}
 
-		//Updates color of color selection button in app in response to color selection button on device
-		private void setGuiColor(int color)
+		//Updates color in app in response to color selection button on device
+		private void setGuiColor(byte r, byte g, byte b)
 		{
-			Color c = Color.FromArgb(color & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff);
-			colorBtn.Invoke(new Action(() => colorBtn.BackColor = c));
+			colorBtn.Invoke(new Action(() => colorBtn.BackColor = Color.FromArgb(r, g, b)));
 		}
 
+		//Closes uart listening thread when app is closing
 		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
 		{
 			uartListener.Abort();
 		}
 
-		//Updates which controls are enabled when main state changes
 		private void singleColorRb_CheckedChanged(object sender, EventArgs e)
+		{
+			updateGuiAccess();
+		}
+
+		private void constantRb_CheckedChanged(object sender, EventArgs e)
+		{
+			updateGuiAccess();
+		}
+
+		//Enable/disable controls depending on state
+		private void updateGuiAccess()
 		{
 			singleColorPanel.Enabled = singleColorRb.Checked;
 			speedPanel.Enabled = blinkRb.Checked && singleColorRb.Checked || !singleColorRb.Checked;
 		}
 
-		//Enables/disables speed control when enabling/disabling blinking
-		private void constantRb_CheckedChanged(object sender, EventArgs e)
-		{
-			speedPanel.Enabled = !constantRb.Checked;
-		}
-
-		//Blink/Fade speed changed
+		//Blink/fade speed changed
 		private void speedTrackbar_Scroll(object sender, EventArgs e)
 		{
 			string command;

@@ -21,6 +21,7 @@ namespace Lab4WithGUI
 			Application.SetCompatibleTextRenderingDefault(false);
 			try
 			{
+				//Close app if user doesn't connect to serial port
 				if (!initSerialPort())
 					return;
 				Application.Run(new Form1());
@@ -35,6 +36,8 @@ namespace Lab4WithGUI
 		{
 			SerialPort.BaudRate = 9600;
 			var portDlg = new PortDialog();
+			
+			//Loop until a successful connection is made or the user gives up
 			while (DialogResult.OK == portDlg.ShowDialog())
 			{
 				SerialPort.PortName = portDlg.PortName;
@@ -53,7 +56,7 @@ namespace Lab4WithGUI
 					MessageBox.Show(ex.Message + "\nClose the serial monitor darn it!");
 				}
 			}
-			return false; //The user closed the window without clicking Ok.
+			return false;
 		}
 	}
 }
