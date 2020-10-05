@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
@@ -16,29 +18,51 @@ namespace Lab4WithGUI
 {
 	public partial class Form1 : Form
 	{
-		int state => singleColorRb.Checked ? 0 : 1;
-		int subState => constantRb.Checked ? 0 : 1;
-
-		//Protects serial port from concurrent access from different threads
-		readonly object serialPortLock = new object(); 
+		//DeviceStatus deviceStatus = new DeviceStatus();
+		//int state => singleColorRb.Checked ? 0 : 1;
+		//int subState => constantRb.Checked ? 0 : 1;
+		//byte speed => (byte)speedTrackbar.Value;
+		//Color color => colorBtn.BackColor;
 		
+		List<DeviceCommand> DeviceCommands { get; set; } = new List<DeviceCommand>();
+		DeviceCommand SelectedCommand
+		{
+			get
+			{
+				if (commandsDgv.CurrentRow == null)
+					return null;
+				else
+					return DeviceCommands[commandsDgv.CurrentRow.Index];
+			}
+		}
+
+		
+
 		//Listening for incoming uart data
 		readonly Thread uartListener;
+
 		
-		//Used for uart communication
-		SerialPort serialPort => Program.SerialPort;
-		
+
 		public Form1()
 		{
 			InitializeComponent();
 			AllocConsole();
 			uartListener = new Thread(new ThreadStart(readUartCommands));
 			uartListener.Start();
-			
+
 			//Init device so that it matches app
-			singleColorRb.PerformClick();
-			constantRb.PerformClick();
-			setColor(colorBtn.BackColor = Color.Lime);
+			//deviceStatus.updateDevice();
+			//updateDeviceStatus();
+			//singleColorRb.PerformClick();
+			//constantRb.PerformClick();
+			//setColor(colorBtn.BackColor = Color.Lime);
+
+			//DeviceCommands.AllowEdit = DeviceCommands.AllowNew = DeviceCommands.AllowRemove = DeviceCommands.RaiseListChangedEvents = true;
+		}
+
+		private void sendDeviceStatus()
+		{
+			
 		}
 
 		//Enables debug output
@@ -48,67 +72,69 @@ namespace Lab4WithGUI
 		static extern bool AllocConsole();
 
 		//Sets state of device
-		private void setState(uint time, int state, int subState)
+		private void sendState(int state, int subState)
 		{
-			sendCommand(time, $"s{(char)state}{(char)subState}");
-		}
-
-		//Sets color of single-color state
-		private void setColor(Color c)
-		{
-			sendCommand(0, $"c{(char)c.R}{(char)c.G}{(char)c.B}");
-		}
-
-		//Sends specified command to device.
-		//Adds ! to start and # to end of message
-		//<time> specifies how many seconds the device should wait before executing the command
-		private void sendCommand(uint time, string command)
-		{
-			//Since we are sending binary data it seems we need to send a byte array,
-			//because sending a string will mess up bytes with values > 127
-			List<byte> bytes = new List<byte>();
-			bytes.Add((byte)'!');
-			bytes.Add((byte)(time & 0xff));
-			bytes.Add((byte)((time >> 8) & 0xff));
-			bytes.Add((byte)((time >> 16) & 0xff));
-			bytes.Add((byte)((time >> 24) & 0xff));
-			for (int i = 0; i < command.Length; i++)
-				bytes.Add((byte)command[i]);
-			bytes.Add ((byte)'#');
-			
-			lock (serialPortLock)
-				serialPort.Write(bytes.ToArray(), 0, bytes.Count);
+			if (SelectedCommand != null)
+			{
+				SelectedCommand.DeviceStatus.State = state;
+				SelectedCommand.DeviceStatus.SubState = subState;
+				SelectedCommand.sendState();
+			}
 		}
 
 		//Opens a ColorPicker to select color for single-color state
 		private void colorBtn_Click(object sender, EventArgs e)
 		{
 			if (DialogResult.OK == colorDialog1.ShowDialog())
-				setColor(colorBtn.BackColor = colorDialog1.Color);
+			{
+				if (SelectedCommand != null)
+				{
+					SelectedCommand.DeviceStatus.Color = colorBtn.BackColor = colorDialog1.Color;
+					SelectedCommand.sendColor();
+				}
+			}
 		}
 
 		//Switches to single-color state
 		private void singleColorRb_Click(object sender, EventArgs e)
 		{
-			setState(0, 0, constantRb.Checked ? 0 : 1);
+			if (SelectedCommand != null)
+			{
+				SelectedCommand.DeviceStatus.State = 0;
+				SelectedCommand.sendState();
+			}
 		}
 
 		//Switches to rainbow state
 		private void rainbowRb_Click(object sender, EventArgs e)
 		{
-			setState(0, 1, 0);
+			if (SelectedCommand != null)
+			{
+				SelectedCommand.DeviceStatus.State = 1;
+				SelectedCommand.sendState();
+			}
 		}
 
 		//Switches to constant (non-blinking) substate
 		private void constantRb_Click(object sender, EventArgs e)
 		{
-			setState(0, 0, 0);
+			if (SelectedCommand != null)
+			{
+				SelectedCommand.DeviceStatus.State = 0;
+				SelectedCommand.DeviceStatus.SubState = 0;
+				SelectedCommand.sendState();
+			}
 		}
 
 		//Switches to blinking substate
 		private void blinkRb_Click(object sender, EventArgs e)
 		{
-			setState(0, 0, 1);
+			if (SelectedCommand != null)
+			{
+				SelectedCommand.DeviceStatus.State = 0;
+				SelectedCommand.DeviceStatus.SubState = 1;
+				SelectedCommand.sendState();
+			}
 		}
 
 		//Listens for messages from device and updates GUI accordingly.
@@ -121,15 +147,14 @@ namespace Lab4WithGUI
 			while (true)
 			{
 				int readByte = -1;
-				lock (serialPortLock)
+				lock (Uart.Lock)
 				{
-					if (serialPort.BytesToRead > 0)
+					if (Uart.Port.BytesToRead > 0)
 					{
-						//Console.WriteLine(serialPort.ReadExisting()); ;
-						readByte = serialPort.ReadByte();
+						readByte = Uart.Port.ReadByte();
 					}
 				}
-				
+
 				if (readByte >= 0)
 				{
 					char c = (char)readByte;
@@ -206,20 +231,71 @@ namespace Lab4WithGUI
 		//Blink/fade speed changed
 		private void speedTrackbar_Scroll(object sender, EventArgs e)
 		{
-			string command;
-			if (state == 0 && subState == 1) 
-				command = "b";  //Command for changing blink speed
-			else if (state == 1)
-				command = "f";  //Command for Changing fade speed
-			else
-				return;
-			sendCommand(0, command + (char)speedTrackbar.Value);
+			if (SelectedCommand != null)
+			{
+				SelectedCommand.DeviceStatus.Speed = (byte)speedTrackbar.Value;
+				SelectedCommand.sendSpeed();
+			}
 		}
 
 		//Update color of ColorPicker when color of color selection button changes
 		private void colorBtn_BackColorChanged(object sender, EventArgs e)
 		{
 			colorDialog1.Color = colorBtn.BackColor;
+		}
+
+		private void commandsDgv_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+		{
+			DeviceCommands.Add(new DeviceCommand()
+			{
+				Description = (string)commandsDgv.Rows[e.RowIndex].Cells[0].Value,
+				Delay = (uint)commandsDgv.Rows[e.RowIndex].Cells[1].Value,
+				Recurring = (bool)commandsDgv.Rows[e.RowIndex].Cells[2].Value,
+				Active = (bool)commandsDgv.Rows[e.RowIndex].Cells[3].Value,
+				DeviceStatus = SelectedCommand.DeviceStatus
+			});
+		}
+
+		//Check that delay time is entered as a positive integer
+		//Source: https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.datagridviewcellvalidatingeventargs.formattedvalue?view=netframework-4.8&f1url=%3FappId%3DDev16IDEF1%26l%3DEN-US%26k%3Dk(System.Windows.Forms.DataGridViewCellValidatingEventArgs.FormattedValue);k(TargetFrameworkMoniker-.NETFramework,Version%253Dv4.8);k(DevLang-csharp)%26rd%3Dtrue
+		private void commandsDgv_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+		{
+			if (e.ColumnIndex == 1)
+			{
+				commandsDgv.Rows[e.RowIndex].ErrorText = "";
+				int newInteger;
+
+				// Don't try to validate the 'new row' until finished 
+				// editing since there
+				// is not any point in validating its initial value.
+				if (commandsDgv.Rows[e.RowIndex].IsNewRow) { return; }
+				if (!int.TryParse(e.FormattedValue.ToString(),
+					out newInteger) || newInteger < 0)
+				{
+					e.Cancel = true;
+					commandsDgv.Rows[e.RowIndex].ErrorText = "The value must be a non-negative integer";
+				}
+			}
+		}
+
+		private void commandsDgv_CellValidated(object sender, DataGridViewCellEventArgs e)
+		{
+
+
+		}
+
+		private void commandsDgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+		{
+			var row = commandsDgv.Rows[e.RowIndex];
+			int col = e.ColumnIndex;
+			if (col == 0)
+				DeviceCommands[e.RowIndex].Description = (string)row.Cells[col].Value;
+			else if (col == 1)
+				DeviceCommands[e.RowIndex].Delay = (uint)row.Cells[col].Value;
+			else if (col == 2)
+				DeviceCommands[e.RowIndex].Recurring= (bool)row.Cells[col].Value;
+			if (col == 3)
+				DeviceCommands[e.RowIndex].Active = (bool)row.Cells[col].Value;
 		}
 	}
 }

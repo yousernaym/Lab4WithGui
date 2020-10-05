@@ -10,7 +10,6 @@ namespace Lab4WithGUI
 {
 	static class Program
 	{
-		public static SerialPort SerialPort { get; set; } = new SerialPort();
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
@@ -22,29 +21,26 @@ namespace Lab4WithGUI
 			try
 			{
 				//Close app if user doesn't connect to serial port
-				if (!initSerialPort())
+				if (!connectToDevice())
 					return;
 				Application.Run(new Form1());
 			}
 			finally
 			{
-				SerialPort.Close();
+				Uart.disconnect();
 			}
 		}
 		
-		static bool initSerialPort()
+		static bool connectToDevice()
 		{
-			SerialPort.BaudRate = 9600;
 			var portDlg = new PortDialog();
 			
 			//Loop until a successful connection is made or the user gives up
 			while (DialogResult.OK == portDlg.ShowDialog())
 			{
-				SerialPort.PortName = portDlg.PortName;
-				SerialPort.BaudRate = 9600;
 				try
 				{
-					SerialPort.Open();
+					Uart.connect(portDlg.PortName);
 					return true;
 				}
 				catch (IOException ex)
