@@ -217,11 +217,12 @@ namespace Lab4WithGUI
 
 		private void commandsDgv_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
 		{
+			DataGridViewRow row = commandsDgv.Rows[e.RowIndex];
 			var status = new DeviceCommand()
 			{
-				Delay = getCommandCellUint(e.RowIndex, 1),
-				Recurring = getCommandCellBool(e.RowIndex, 1),
-				Scheduled = getCommandCellBool(e.RowIndex, 1),
+				Delay = getCommandCellUint(row, 1),
+				Recurring = getCommandCellBool(row, 1),
+				Scheduled = getCommandCellBool(row, 1),
 				State = currentDeviceStatus.State,
 				SubState = currentDeviceStatus.SubState,
 				Color = currentDeviceStatus.Color,
@@ -230,18 +231,18 @@ namespace Lab4WithGUI
 			deviceCommands.Add(status);
 		}
 
-		uint getCommandCellUint(int row, int col)
+		uint getCommandCellUint(DataGridViewRow row, int colIndex)
 		{
-			var value = commandsDgv.Rows[row].Cells[col].Value;
+			var value = row.Cells[colIndex].Value;
 			if (value != null)
-				return (uint)value;
+				return uint.Parse((string)value);
 			else
 				return 0;
 		}
 
-		bool getCommandCellBool(int row, int col)
+		bool getCommandCellBool(DataGridViewRow row, int colIndex)
 		{
-			var value = commandsDgv.Rows[row].Cells[col].Value;
+			var value = row.Cells[colIndex].Value;
 			if (value != null)
 				return (bool)value;
 			else
@@ -275,11 +276,11 @@ namespace Lab4WithGUI
 			var row = commandsDgv.Rows[e.RowIndex];
 			int col = e.ColumnIndex;
 			if (col == 1)
-				deviceCommands[e.RowIndex].Delay = (uint)row.Cells[col].Value;
+				deviceCommands[e.RowIndex].Delay = getCommandCellUint(row, 1);
 			else if (col == 2)
-				deviceCommands[e.RowIndex].Recurring= (bool)row.Cells[col].Value;
+				deviceCommands[e.RowIndex].Recurring= getCommandCellBool(row, 2);
 			else if (col == 3)
-				deviceCommands[e.RowIndex].Scheduled = (bool)row.Cells[col].Value;
+				deviceCommands[e.RowIndex].Scheduled = getCommandCellBool(row, 3);
 			if (deviceCommands[e.RowIndex].Scheduled)
 				deviceCommands[e.RowIndex].send();
 		}
