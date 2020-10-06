@@ -13,10 +13,10 @@ namespace Lab4WithGUI
 		//A random string that (probably) uniquely identifies this command
 		//Limit to 4 bytes to reduce uart transfer time and memory usage on device
 		readonly string guid = Guid.NewGuid().ToString().Substring(0, 4);
-		public DeviceStatus DeviceStatus { get; set; }
+		//public DeviceStatus DeviceStatus { get; set; }
 		uint delay;
 		bool recurring;
-		bool active;
+		bool scheduled;
 
 		//public string Description { get; set; }
 		public uint Delay
@@ -25,7 +25,7 @@ namespace Lab4WithGUI
 			set
 			{
 				delay = value;
-				send();
+				//send();
 			}
 		}
 		public bool Recurring
@@ -34,36 +34,40 @@ namespace Lab4WithGUI
 			set
 			{
 				recurring = value;
-				send();
+				//send();
 			}
 		}
 
-		public bool Active
+		public bool Scheduled
 		{
-			get => active;
+			get => scheduled;
 			set
 			{
-				active = value;
-				send();
+				scheduled = value;
 			}
 		}
 
-		string stateCommandString => $"s{(char)DeviceStatus.State}{(char)DeviceStatus.SubState}";
+		public int State { get; set; }
+		public int SubState { get; set; }
+		public byte Speed { get; set; }
+		public Color Color { get; set; }
+
+		string stateCommandString => $"s{(char)State}{(char)SubState}";
 		string speedCommandString
 		{
 			get
 			{
 				string command;
-				if (DeviceStatus.State == 0 && DeviceStatus.SubState == 1)
+				if (State == 0 && SubState == 1)
 					command = "b";  //Command for changing blink speed
-				else if (DeviceStatus.State == 1)
+				else if (State == 1)
 					command = "f";  //Command for Changing fade speed
 				else
 					return "";
-				return command + (char)DeviceStatus.Speed;
+				return command + (char)Speed;
 			}
 		}
-		string colorCommandString => $"c{(char)DeviceStatus.Color.R}{(char)DeviceStatus.Color.G}{(char)DeviceStatus.Color.B}";
+		string colorCommandString => $"c{(char)Color.R}{(char)Color.G}{(char)Color.B}";
 		
 		public void sendState()
 		{
@@ -83,8 +87,6 @@ namespace Lab4WithGUI
 		//Adds ! to start and # to end of message
 		private void sendCommand(string command)
 		{
-			if (!active)
-				return;
 			//Since we are sending binary data it seems we need to send a byte array,
 			//because sending a string will mess up bytes with values > 127
 			List<byte> bytes = new List<byte>();
@@ -104,9 +106,21 @@ namespace Lab4WithGUI
 				Uart.Port.Write(bytes.ToArray(), 0, bytes.Count);
 		}
 
-		void send()
+		public void send()
 		{
 			sendCommand(stateCommandString + speedCommandString + colorCommandString);
+		}
+
+		public void setStatus(int state, int subState, Color ?color, int speed)
+		{
+			if (state >= 0)
+				State = state;
+			if (subState >= 0)
+				SubState = subState;
+			if (color != null)
+				Color = (Color)color;
+			if (speed >= 0)
+				Speed = (byte)speed;
 		}
 	}
 }

@@ -41,8 +41,6 @@ namespace Lab4WithGUI
 		//Listening for incoming uart data
 		readonly Thread uartListener;
 
-		
-
 		public Form1()
 		{
 			InitializeComponent();
@@ -50,19 +48,10 @@ namespace Lab4WithGUI
 			uartListener = new Thread(new ThreadStart(readUartCommands));
 			uartListener.Start();
 
-			//Init device so that it matches app
-			//deviceStatus.updateDevice();
-			//updateDeviceStatus();
-			//singleColorRb.PerformClick();
-			//constantRb.PerformClick();
-			//setColor(colorBtn.BackColor = Color.Lime);
+			//Init device to default status
+			currentDeviceStatus.setStatus(0, 0, colorBtn.BackColor, 128);
+			currentDeviceStatus.send();
 
-			//DeviceCommands.AllowEdit = DeviceCommands.AllowNew = DeviceCommands.AllowRemove = DeviceCommands.RaiseListChangedEvents = true;
-		}
-
-		private void sendDeviceStatus()
-		{
-			
 		}
 
 		//Enables debug output
@@ -71,62 +60,61 @@ namespace Lab4WithGUI
 		[return: MarshalAs(UnmanagedType.Bool)]
 		static extern bool AllocConsole();
 
-		//Opens a ColorPicker to select color for single-color state
-		private void colorBtn_Click(object sender, EventArgs e)
-		{
-			if (DialogResult.OK == colorDialog1.ShowDialog())
-			{
-				currentDeviceStatus.Color = colorBtn.BackColor = colorDialog1.Color;
-				if (selectedCommand != null)
-				{
-					selectedCommand.DeviceStatus.Color = currentDeviceStatus.Color;
-					selectedCommand.sendColor();
-				}
-			}
-		}
-
 		//Switches to single-color state
 		private void singleColorRb_Click(object sender, EventArgs e)
 		{
-			currentDeviceStatus.State = 0;
-			foreach (DataGridViewRow row in commandsDgv.SelectedRows)
-			{
-				deviceCommands[row.Index].DeviceStatus.State = 0;
-				deviceCommands[row.Index].sendState();
-			}
-			selectedCommand.sendState();
+			setStatus(0, -1, null, -1);
 		}
-	}
+	
 
 		//Switches to rainbow state
 		private void rainbowRb_Click(object sender, EventArgs e)
 		{
-			if (selectedCommand != null)
-			{
-				selectedCommand.DeviceStatus.State = 1;
-				selectedCommand.sendState();
-			}
+			setStatus(1, -1, null, -1);
 		}
 
 		//Switches to constant (non-blinking) substate
 		private void constantRb_Click(object sender, EventArgs e)
 		{
-			if (selectedCommand != null)
-			{
-				selectedCommand.DeviceStatus.State = 0;
-				selectedCommand.DeviceStatus.SubState = 0;
-				selectedCommand.sendState();
-			}
+			setStatus(-1, 0, null, -1);
 		}
 
 		//Switches to blinking substate
 		private void blinkRb_Click(object sender, EventArgs e)
 		{
-			if (selectedCommand != null)
+			setStatus(-1, 1, null, -1);
+		}
+
+		//Opens a ColorPicker to select color for single-color state
+		private void colorBtn_Click(object sender, EventArgs e)
+		{
+			if (DialogResult.OK == colorDialog1.ShowDialog())
 			{
-				selectedCommand.DeviceStatus.State = 0;
-				selectedCommand.DeviceStatus.SubState = 1;
-				selectedCommand.sendState();
+				setStatus(-1, -1, colorBtn.BackColor = colorDialog1.Color, -1);
+			}
+		}
+
+		//Blink/fade speed changed
+		private void speedTrackbar_Scroll(object sender, EventArgs e)
+		{
+			setStatus(-1, -1, null, speedTrackbar.Value);
+		}
+
+		private void setStatus(int state, int subState, Color ?color, int speed)
+		{
+			if (commandsDgv.SelectedRows.Count == 0)
+			{
+				currentDeviceStatus.setStatus(state, subState, color, speed);
+				currentDeviceStatus.send();
+			}
+			else
+			{
+				foreach (DataGridViewRow row in commandsDgv.SelectedRows)
+				{
+					deviceCommands[row.Index].setStatus(state, subState, color, speed);
+					if (deviceCommands[row.Index].Scheduled)
+						deviceCommands[row.Index].send();
+				}
 			}
 		}
 
@@ -221,16 +209,6 @@ namespace Lab4WithGUI
 			speedPanel.Enabled = blinkRb.Checked && singleColorRb.Checked || !singleColorRb.Checked;
 		}
 
-		//Blink/fade speed changed
-		private void speedTrackbar_Scroll(object sender, EventArgs e)
-		{
-			if (selectedCommand != null)
-			{
-				selectedCommand.DeviceStatus.Speed = (byte)speedTrackbar.Value;
-				selectedCommand.sendSpeed();
-			}
-		}
-
 		//Update color of ColorPicker when color of color selection button changes
 		private void colorBtn_BackColorChanged(object sender, EventArgs e)
 		{
@@ -239,14 +217,35 @@ namespace Lab4WithGUI
 
 		private void commandsDgv_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
 		{
-			deviceCommands.Add(new DeviceCommand()
+			var status = new DeviceCommand()
 			{
-				//Description = (string)commandsDgv.Rows[e.RowIndex].Cells[0].Value,
-				Delay = (uint)commandsDgv.Rows[e.RowIndex].Cells[1].Value,
-				Recurring = (bool)commandsDgv.Rows[e.RowIndex].Cells[2].Value,
-				Active = (bool)commandsDgv.Rows[e.RowIndex].Cells[3].Value,
-				DeviceStatus = currentDeviceStatus
-			});
+				Delay = getCommandCellUint(e.RowIndex, 1),
+				Recurring = getCommandCellBool(e.RowIndex, 1),
+				Scheduled = getCommandCellBool(e.RowIndex, 1),
+				State = currentDeviceStatus.State,
+				SubState = currentDeviceStatus.SubState,
+				Color = currentDeviceStatus.Color,
+				Speed = currentDeviceStatus.Speed
+			};
+			deviceCommands.Add(status);
+		}
+
+		uint getCommandCellUint(int row, int col)
+		{
+			var value = commandsDgv.Rows[row].Cells[col].Value;
+			if (value != null)
+				return (uint)value;
+			else
+				return 0;
+		}
+
+		bool getCommandCellBool(int row, int col)
+		{
+			var value = commandsDgv.Rows[row].Cells[col].Value;
+			if (value != null)
+				return (bool)value;
+			else
+				return false;
 		}
 
 		//Check that delay time is entered as a positive integer
@@ -279,8 +278,10 @@ namespace Lab4WithGUI
 				deviceCommands[e.RowIndex].Delay = (uint)row.Cells[col].Value;
 			else if (col == 2)
 				deviceCommands[e.RowIndex].Recurring= (bool)row.Cells[col].Value;
-			if (col == 3)
-				deviceCommands[e.RowIndex].Active = (bool)row.Cells[col].Value;
+			else if (col == 3)
+				deviceCommands[e.RowIndex].Scheduled = (bool)row.Cells[col].Value;
+			if (deviceCommands[e.RowIndex].Scheduled)
+				deviceCommands[e.RowIndex].send();
 		}
 	}
 }
