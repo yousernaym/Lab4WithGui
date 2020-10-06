@@ -10,20 +10,22 @@ namespace Lab4WithGUI
 {
 	class DeviceCommand
 	{
-		//readonly string guid = Guid.NewGuid().ToByteArray()
+		//A random string that (probably) uniquely identifies this command
+		//Limit to 4 bytes to reduce uart transfer time and memory usage on device
+		readonly string guid = Guid.NewGuid().ToString().Substring(0, 4);
 		public DeviceStatus DeviceStatus { get; set; }
 		uint delay;
 		bool recurring;
-		private bool active;
+		bool active;
 
-		public string Description { get; set; }
+		//public string Description { get; set; }
 		public uint Delay
 		{
 			get => delay;
 			set
 			{
 				delay = value;
-				sendAll();
+				send();
 			}
 		}
 		public bool Recurring
@@ -32,7 +34,7 @@ namespace Lab4WithGUI
 			set
 			{
 				recurring = value;
-				sendAll();
+				send();
 			}
 		}
 
@@ -42,7 +44,7 @@ namespace Lab4WithGUI
 			set
 			{
 				active = value;
-				sendAll();
+				send();
 			}
 		}
 
@@ -87,6 +89,8 @@ namespace Lab4WithGUI
 			//because sending a string will mess up bytes with values > 127
 			List<byte> bytes = new List<byte>();
 			bytes.Add((byte)'!');
+			for (int i = 0; i < guid.Length; i++)
+				bytes.Add((byte)guid[i]);
 			bytes.Add((byte)(Delay & 0xff));
 			bytes.Add((byte)((Delay >> 8) & 0xff));
 			bytes.Add((byte)((Delay >> 16) & 0xff));
@@ -100,7 +104,7 @@ namespace Lab4WithGUI
 				Uart.Port.Write(bytes.ToArray(), 0, bytes.Count);
 		}
 
-		void sendAll()
+		void send()
 		{
 			sendCommand(stateCommandString + speedCommandString + colorCommandString);
 		}

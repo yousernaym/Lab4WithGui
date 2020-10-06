@@ -24,19 +24,19 @@ namespace Lab4WithGUI
 		//byte speed => (byte)speedTrackbar.Value;
 		//Color color => colorBtn.BackColor;
 		
-		List<DeviceCommand> DeviceCommands { get; set; } = new List<DeviceCommand>();
-		DeviceCommand SelectedCommand
+		List<DeviceCommand> deviceCommands = new List<DeviceCommand>();
+		DeviceCommand selectedCommand
 		{
 			get
 			{
 				if (commandsDgv.CurrentRow == null)
 					return null;
 				else
-					return DeviceCommands[commandsDgv.CurrentRow.Index];
+					return deviceCommands[commandsDgv.CurrentRow.Index];
 			}
 		}
 
-		
+		DeviceCommand currentDeviceStatus = new DeviceCommand();
 
 		//Listening for incoming uart data
 		readonly Thread uartListener;
@@ -71,26 +71,16 @@ namespace Lab4WithGUI
 		[return: MarshalAs(UnmanagedType.Bool)]
 		static extern bool AllocConsole();
 
-		//Sets state of device
-		private void sendState(int state, int subState)
-		{
-			if (SelectedCommand != null)
-			{
-				SelectedCommand.DeviceStatus.State = state;
-				SelectedCommand.DeviceStatus.SubState = subState;
-				SelectedCommand.sendState();
-			}
-		}
-
 		//Opens a ColorPicker to select color for single-color state
 		private void colorBtn_Click(object sender, EventArgs e)
 		{
 			if (DialogResult.OK == colorDialog1.ShowDialog())
 			{
-				if (SelectedCommand != null)
+				currentDeviceStatus.Color = colorBtn.BackColor = colorDialog1.Color;
+				if (selectedCommand != null)
 				{
-					SelectedCommand.DeviceStatus.Color = colorBtn.BackColor = colorDialog1.Color;
-					SelectedCommand.sendColor();
+					selectedCommand.DeviceStatus.Color = currentDeviceStatus.Color;
+					selectedCommand.sendColor();
 				}
 			}
 		}
@@ -98,42 +88,45 @@ namespace Lab4WithGUI
 		//Switches to single-color state
 		private void singleColorRb_Click(object sender, EventArgs e)
 		{
-			if (SelectedCommand != null)
+			currentDeviceStatus.State = 0;
+			foreach (DataGridViewRow row in commandsDgv.SelectedRows)
 			{
-				SelectedCommand.DeviceStatus.State = 0;
-				SelectedCommand.sendState();
+				deviceCommands[row.Index].DeviceStatus.State = 0;
+				deviceCommands[row.Index].sendState();
 			}
+			selectedCommand.sendState();
 		}
+	}
 
 		//Switches to rainbow state
 		private void rainbowRb_Click(object sender, EventArgs e)
 		{
-			if (SelectedCommand != null)
+			if (selectedCommand != null)
 			{
-				SelectedCommand.DeviceStatus.State = 1;
-				SelectedCommand.sendState();
+				selectedCommand.DeviceStatus.State = 1;
+				selectedCommand.sendState();
 			}
 		}
 
 		//Switches to constant (non-blinking) substate
 		private void constantRb_Click(object sender, EventArgs e)
 		{
-			if (SelectedCommand != null)
+			if (selectedCommand != null)
 			{
-				SelectedCommand.DeviceStatus.State = 0;
-				SelectedCommand.DeviceStatus.SubState = 0;
-				SelectedCommand.sendState();
+				selectedCommand.DeviceStatus.State = 0;
+				selectedCommand.DeviceStatus.SubState = 0;
+				selectedCommand.sendState();
 			}
 		}
 
 		//Switches to blinking substate
 		private void blinkRb_Click(object sender, EventArgs e)
 		{
-			if (SelectedCommand != null)
+			if (selectedCommand != null)
 			{
-				SelectedCommand.DeviceStatus.State = 0;
-				SelectedCommand.DeviceStatus.SubState = 1;
-				SelectedCommand.sendState();
+				selectedCommand.DeviceStatus.State = 0;
+				selectedCommand.DeviceStatus.SubState = 1;
+				selectedCommand.sendState();
 			}
 		}
 
@@ -231,10 +224,10 @@ namespace Lab4WithGUI
 		//Blink/fade speed changed
 		private void speedTrackbar_Scroll(object sender, EventArgs e)
 		{
-			if (SelectedCommand != null)
+			if (selectedCommand != null)
 			{
-				SelectedCommand.DeviceStatus.Speed = (byte)speedTrackbar.Value;
-				SelectedCommand.sendSpeed();
+				selectedCommand.DeviceStatus.Speed = (byte)speedTrackbar.Value;
+				selectedCommand.sendSpeed();
 			}
 		}
 
@@ -246,13 +239,13 @@ namespace Lab4WithGUI
 
 		private void commandsDgv_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
 		{
-			DeviceCommands.Add(new DeviceCommand()
+			deviceCommands.Add(new DeviceCommand()
 			{
-				Description = (string)commandsDgv.Rows[e.RowIndex].Cells[0].Value,
+				//Description = (string)commandsDgv.Rows[e.RowIndex].Cells[0].Value,
 				Delay = (uint)commandsDgv.Rows[e.RowIndex].Cells[1].Value,
 				Recurring = (bool)commandsDgv.Rows[e.RowIndex].Cells[2].Value,
 				Active = (bool)commandsDgv.Rows[e.RowIndex].Cells[3].Value,
-				DeviceStatus = SelectedCommand.DeviceStatus
+				DeviceStatus = currentDeviceStatus
 			});
 		}
 
@@ -278,24 +271,16 @@ namespace Lab4WithGUI
 			}
 		}
 
-		private void commandsDgv_CellValidated(object sender, DataGridViewCellEventArgs e)
-		{
-
-
-		}
-
 		private void commandsDgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
 		{
 			var row = commandsDgv.Rows[e.RowIndex];
 			int col = e.ColumnIndex;
-			if (col == 0)
-				DeviceCommands[e.RowIndex].Description = (string)row.Cells[col].Value;
-			else if (col == 1)
-				DeviceCommands[e.RowIndex].Delay = (uint)row.Cells[col].Value;
+			if (col == 1)
+				deviceCommands[e.RowIndex].Delay = (uint)row.Cells[col].Value;
 			else if (col == 2)
-				DeviceCommands[e.RowIndex].Recurring= (bool)row.Cells[col].Value;
+				deviceCommands[e.RowIndex].Recurring= (bool)row.Cells[col].Value;
 			if (col == 3)
-				DeviceCommands[e.RowIndex].Active = (bool)row.Cells[col].Value;
+				deviceCommands[e.RowIndex].Active = (bool)row.Cells[col].Value;
 		}
 	}
 }

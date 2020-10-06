@@ -11,39 +11,9 @@ namespace Lab4WithGUI
 		private byte speed;
 		private Color color;
 
-		public int State
-		{
-			get => state;
-			set
-			{
-				state = value;
-				
-			}
-		}
+		public int State { get => state; set => state = value; }
 		public int SubState { get => subState; set => subState = value; }
 		public byte Speed { get => speed; set => speed = value; }
 		public Color Color { get => color; set => color = value; }
-
-		internal void updateDevice()
-		{
-			throw new NotImplementedException();
-		}
-
-		void sendState()
-		{
-			
-		}
-
-		void sendSpeed()
-		{
-
-		}
-
-		void sendColor()
-		{
-
-		}
-
-		
 	}
 }

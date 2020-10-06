@@ -216,7 +216,6 @@
 			this.commandsDgv.Size = new System.Drawing.Size(294, 117);
 			this.commandsDgv.TabIndex = 15;
 			this.commandsDgv.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.commandsDgv_CellEndEdit);
-			this.commandsDgv.CellValidated += new System.Windows.Forms.DataGridViewCellEventHandler(this.commandsDgv_CellValidated);
 			this.commandsDgv.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.commandsDgv_CellValidating);
 			this.commandsDgv.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.commandsDgv_RowsAdded);
 			// 
