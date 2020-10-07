@@ -243,7 +243,7 @@ namespace Lab4WithGUI
 			var status = new DeviceStatus()
 			{
 				Delay = getCommandCellUint(row, 1),
-				Recurring = getCommandCellBool(row, 1),
+				Rerun = getCommandCellBool(row, 1),
 				Scheduled = getCommandCellBool(row, 1),
 				State = currentDeviceStatus.State,
 				SubState = currentDeviceStatus.SubState,
@@ -297,11 +297,11 @@ namespace Lab4WithGUI
 		{
 			var row = commandsDgv.Rows[e.RowIndex];
 			int col = e.ColumnIndex;
-			if (col == 1)
+			if (col == 1) //Delay
 				deviceCommands[e.RowIndex].Delay = getCommandCellUint(row, 1);
-			else if (col == 2)
-				deviceCommands[e.RowIndex].Recurring= getCommandCellBool(row, 2);
-			else if (col == 3)
+			else if (col == 2)  //Rerun
+				deviceCommands[e.RowIndex].Rerun = getCommandCellBool(row, 2);
+			else if (col == 3) //Scheduled
 				deviceCommands[e.RowIndex].Scheduled = getCommandCellBool(row, 3);
 			if (deviceCommands[e.RowIndex].Scheduled)
 				deviceCommands[e.RowIndex].send();

@@ -4,15 +4,18 @@
 
 #include "deviceStates.h"
 #include "uart.h"
+#include "schedule.h"
 
 void setup()
 {
   initDeviceStates();
+  initSchedule();
   Serial.begin(9600);
 }
 
 void loop() 
 {
   readUartCommand();
+  checkSchedule();
   processCurrentState();  
 }

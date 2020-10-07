@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandList.cs" />
-    <Compile Include="DeviceStatus1.cs" />
     <Compile Include="DeviceStatus.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
