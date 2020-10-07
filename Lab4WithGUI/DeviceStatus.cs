@@ -12,41 +12,11 @@ namespace Lab4WithGUI
 	{
 		//A random string that (probably) uniquely identifies this command
 		//Limit to 4 bytes to reduce uart transfer time and memory usage on device
-		readonly string guid = Guid.NewGuid().ToString().Substring(0, 4);
-		//public DeviceStatus DeviceStatus { get; set; }
-		uint delay;
-		bool recurring;
-		bool scheduled;
-
-		//public string Description { get; set; }
-		public uint Delay
-		{
-			get => delay;
-			set
-			{
-				delay = value;
-				//send();
-			}
-		}
-		public bool Rerun
-		{
-			get => recurring;
-			set
-			{
-				recurring = value;
-				//send();
-			}
-		}
-
-		public bool Scheduled
-		{
-			get => scheduled;
-			set
-			{
-				scheduled = value;
-			}
-		}
-
+		readonly string scheduleId = Guid.NewGuid().ToString().Substring(0, 4);
+		public string ScheduleId => scheduleId;
+		public uint Delay { get; set; }
+		public bool Rerun { get; set; }
+		public bool Scheduled { get; set; }
 		public int State { get; set; }
 		public int SubState { get; set; }
 		public byte Speed { get; set; }
@@ -91,13 +61,13 @@ namespace Lab4WithGUI
 			//because sending a string will mess up bytes with values > 127
 			List<byte> bytes = new List<byte>();
 			bytes.Add((byte)'!');
-			for (int i = 0; i < guid.Length; i++)
-				bytes.Add((byte)guid[i]);
+			for (int i = 0; i < scheduleId.Length; i++)
+				bytes.Add((byte)scheduleId[i]);
 			bytes.Add((byte)(Delay & 0xff));
 			bytes.Add((byte)((Delay >> 8) & 0xff));
 			bytes.Add((byte)((Delay >> 16) & 0xff));
 			bytes.Add((byte)((Delay >> 24) & 0xff));
-			bytes.Add((byte)(recurring ? 1 : 0));
+			bytes.Add((byte)(Rerun ? 1 : 0));
 			for (int i = 0; i < command.Length; i++)
 				bytes.Add((byte)command[i]);
 			bytes.Add((byte)'#');

@@ -44,11 +44,11 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.speedPanel = new System.Windows.Forms.Panel();
 			this.commandsDgv = new System.Windows.Forms.DataGridView();
-			this.commandListBindingSource = new System.Windows.Forms.BindingSource(this.components);
 			this.Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.Delay = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.Rerun = new System.Windows.Forms.DataGridViewCheckBoxColumn();
 			this.Scheduled = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+			this.commandListBindingSource = new System.Windows.Forms.BindingSource(this.components);
 			this.statePanel.SuspendLayout();
 			this.panel1.SuspendLayout();
 			this.singleColorPanel.SuspendLayout();
@@ -216,14 +216,11 @@
 			this.commandsDgv.Name = "commandsDgv";
 			this.commandsDgv.Size = new System.Drawing.Size(294, 117);
 			this.commandsDgv.TabIndex = 15;
+			this.commandsDgv.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.commandsDgv_CellContentClick);
 			this.commandsDgv.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.commandsDgv_CellEndEdit);
 			this.commandsDgv.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.commandsDgv_CellValidating);
 			this.commandsDgv.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.commandsDgv_RowsAdded);
 			this.commandsDgv.SelectionChanged += new System.EventHandler(this.commandsDgv_SelectionChanged);
-			// 
-			// commandListBindingSource
-			// 
-			this.commandListBindingSource.DataSource = typeof(Lab4WithGUI.CommandList);
 			// 
 			// Description
 			// 
@@ -256,6 +253,10 @@
 			this.Scheduled.Resizable = System.Windows.Forms.DataGridViewTriState.True;
 			this.Scheduled.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
 			this.Scheduled.Width = 60;
+			// 
+			// commandListBindingSource
+			// 
+			this.commandListBindingSource.DataSource = typeof(Lab4WithGUI.CommandList);
 			// 
 			// Form1
 			// 

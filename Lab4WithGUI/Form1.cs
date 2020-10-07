@@ -8,7 +8,9 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,12 +20,7 @@ namespace Lab4WithGUI
 {
 	public partial class Form1 : Form
 	{
-		//DeviceStatus deviceStatus = new DeviceStatus();
-		//int state => singleColorRb.Checked ? 0 : 1;
-		//int subState => constantRb.Checked ? 0 : 1;
-		//byte speed => (byte)speedTrackbar.Value;
-		//Color color => colorBtn.BackColor;
-		
+		const int DelayColumn = 1, RerunColumn = 2, ScheduledColumn = 3;
 		List<DeviceStatus> deviceCommands = new List<DeviceStatus>();
 		DeviceStatus selectedCommand
 		{
@@ -144,11 +141,7 @@ namespace Lab4WithGUI
 					else if (c == '#' || commandBuf.Length == BufSize) //End of message, or message too long
 					{
 						//Parse message
-						string statusCommandBuf = commandBuf;
-						int commandSize = 0;
-						while ((commandSize = readStatusCommand(statusCommandBuf)) > 0)
-							statusCommandBuf = statusCommandBuf.Substring(commandSize);
-						Invoke(new Action(() => updateGui()));
+						readCommands(commandBuf);
 					}
 					else
 					{
@@ -158,7 +151,16 @@ namespace Lab4WithGUI
 			}
 		}
 
-		private int readStatusCommand(string buf)
+		private void readCommands(string commandBuf)
+		{
+			string statusCommandBuf = commandBuf;
+			int commandSize = 0;
+			while ((commandSize = readCommand(statusCommandBuf)) > 0)
+				statusCommandBuf = statusCommandBuf.Substring(commandSize);
+			Invoke(new Action(() => updateGui())); //Invoke on ui thread
+		}
+
+		private int readCommand(string buf)
 		{
 			if (buf.Length == 0)
 				return 0;
@@ -175,10 +177,26 @@ namespace Lab4WithGUI
 				currentDeviceStatus.Color = Color.FromArgb((byte)buf[1], (byte)buf[2], (byte)buf[3]);
 				commandSize = 4;
 			}
-			else if (command == 's') //Set fade/blink speed
+			else if (command == 'f') //Set fade/blink speed
 			{
 				currentDeviceStatus.Speed = (byte)buf[1];
 				commandSize = 2;
+			}
+			else if(command == 'S') //Scheduled command
+			{
+				string id = buf[1].ToString() + buf[2] + buf[3] + buf[4];
+				for (int i = 0; i < deviceCommands.Count; i++)
+				{
+					if (deviceCommands[i].ScheduleId == id)
+					{
+						if (!deviceCommands[i].Rerun)
+						{
+							commandsDgv.Invoke(new Action(() => commandsDgv.Rows[i].Cells[ScheduledColumn].Value = false));
+							deviceCommands[i].Scheduled = false;
+						}
+					}
+				}
+				readCommands(buf.Substring(5));
 			}
 			return commandSize;
 		}
@@ -264,11 +282,17 @@ namespace Lab4WithGUI
 
 		bool getCommandCellBool(DataGridViewRow row, int colIndex)
 		{
-			var value = row.Cells[colIndex].Value;
-			if (value != null)
-				return (bool)value;
-			else
+			object value = row.Cells[colIndex].EditedFormattedValue;
+			bool b;
+			try
+			{
+				b = (bool)value;
+			}
+			catch (InvalidCastException)
+			{
 				return false;
+			}
+			return b;
 		}
 
 		//Check that delay time is entered as a positive integer
@@ -298,11 +322,7 @@ namespace Lab4WithGUI
 			var row = commandsDgv.Rows[e.RowIndex];
 			int col = e.ColumnIndex;
 			if (col == 1) //Delay
-				deviceCommands[e.RowIndex].Delay = getCommandCellUint(row, 1);
-			else if (col == 2)  //Rerun
-				deviceCommands[e.RowIndex].Rerun = getCommandCellBool(row, 2);
-			else if (col == 3) //Scheduled
-				deviceCommands[e.RowIndex].Scheduled = getCommandCellBool(row, 3);
+				deviceCommands[e.RowIndex].Delay = getCommandCellUint(row, DelayColumn);
 			if (deviceCommands[e.RowIndex].Scheduled)
 				deviceCommands[e.RowIndex].send();
 		}
@@ -310,6 +330,18 @@ namespace Lab4WithGUI
 		private void commandsDgv_SelectionChanged(object sender, EventArgs e)
 		{
 			updateGui();
+		}
+
+		private void commandsDgv_CellContentClick(object sender, DataGridViewCellEventArgs e)
+		{
+			var row = commandsDgv.Rows[e.RowIndex];
+			int col = e.ColumnIndex;
+			if (col == 2)  //Rerun
+				deviceCommands[e.RowIndex].Rerun = getCommandCellBool(row, RerunColumn);
+			else if (col == 3) //Scheduled
+				deviceCommands[e.RowIndex].Scheduled = getCommandCellBool(row, ScheduledColumn);
+			if (deviceCommands[e.RowIndex].Scheduled)
+				deviceCommands[e.RowIndex].send();
 		}
 
 		private void updateGui()
