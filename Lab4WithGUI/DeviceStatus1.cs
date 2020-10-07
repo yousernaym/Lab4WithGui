@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Lab4WithGUI
 {
-	class DeviceCommand
+	class DeviceStatus
 	{
 		//A random string that (probably) uniquely identifies this command
 		//Limit to 4 bytes to reduce uart transfer time and memory usage on device

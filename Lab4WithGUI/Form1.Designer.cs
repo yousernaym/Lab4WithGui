@@ -44,11 +44,11 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.speedPanel = new System.Windows.Forms.Panel();
 			this.commandsDgv = new System.Windows.Forms.DataGridView();
+			this.commandListBindingSource = new System.Windows.Forms.BindingSource(this.components);
 			this.Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.Delay = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.Recurring = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-			this.Active = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-			this.commandListBindingSource = new System.Windows.Forms.BindingSource(this.components);
+			this.Rerun = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+			this.Scheduled = new System.Windows.Forms.DataGridViewCheckBoxColumn();
 			this.statePanel.SuspendLayout();
 			this.panel1.SuspendLayout();
 			this.singleColorPanel.SuspendLayout();
@@ -208,16 +208,22 @@
 			this.commandsDgv.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Description,
             this.Delay,
-            this.Recurring,
-            this.Active});
+            this.Rerun,
+            this.Scheduled});
 			this.commandsDgv.DataSource = this.commandListBindingSource;
 			this.commandsDgv.Location = new System.Drawing.Point(316, 25);
+			this.commandsDgv.MultiSelect = false;
 			this.commandsDgv.Name = "commandsDgv";
 			this.commandsDgv.Size = new System.Drawing.Size(294, 117);
 			this.commandsDgv.TabIndex = 15;
 			this.commandsDgv.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.commandsDgv_CellEndEdit);
 			this.commandsDgv.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.commandsDgv_CellValidating);
 			this.commandsDgv.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.commandsDgv_RowsAdded);
+			this.commandsDgv.SelectionChanged += new System.EventHandler(this.commandsDgv_SelectionChanged);
+			// 
+			// commandListBindingSource
+			// 
+			this.commandListBindingSource.DataSource = typeof(Lab4WithGUI.CommandList);
 			// 
 			// Description
 			// 
@@ -235,26 +241,21 @@
 			this.Delay.HeaderText = "Delay";
 			this.Delay.Name = "Delay";
 			// 
-			// Recurring
+			// Rerun
 			// 
-			this.Recurring.FillWeight = 170F;
-			this.Recurring.HeaderText = "Recurring";
-			this.Recurring.Name = "Recurring";
-			this.Recurring.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-			this.Recurring.Width = 60;
+			this.Rerun.FillWeight = 70F;
+			this.Rerun.HeaderText = "Rerun";
+			this.Rerun.Name = "Rerun";
+			this.Rerun.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+			this.Rerun.Width = 40;
 			// 
-			// Active
+			// Scheduled
 			// 
-			this.Active.DataPropertyName = "Active";
-			this.Active.HeaderText = "Active";
-			this.Active.Name = "Active";
-			this.Active.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-			this.Active.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-			this.Active.Width = 40;
-			// 
-			// commandListBindingSource
-			// 
-			this.commandListBindingSource.DataSource = typeof(Lab4WithGUI.CommandList);
+			this.Scheduled.HeaderText = "Scheduled";
+			this.Scheduled.Name = "Scheduled";
+			this.Scheduled.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+			this.Scheduled.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+			this.Scheduled.Width = 60;
 			// 
 			// Form1
 			// 
@@ -304,8 +305,8 @@
 		private System.Windows.Forms.BindingSource commandListBindingSource;
 		private System.Windows.Forms.DataGridViewTextBoxColumn Description;
 		private System.Windows.Forms.DataGridViewTextBoxColumn Delay;
-		private System.Windows.Forms.DataGridViewCheckBoxColumn Recurring;
-		private System.Windows.Forms.DataGridViewCheckBoxColumn Active;
+		private System.Windows.Forms.DataGridViewCheckBoxColumn Rerun;
+		private System.Windows.Forms.DataGridViewCheckBoxColumn Scheduled;
 	}
 }
 

@@ -24,8 +24,8 @@ namespace Lab4WithGUI
 		//byte speed => (byte)speedTrackbar.Value;
 		//Color color => colorBtn.BackColor;
 		
-		List<DeviceCommand> deviceCommands = new List<DeviceCommand>();
-		DeviceCommand selectedCommand
+		List<DeviceStatus> deviceCommands = new List<DeviceStatus>();
+		DeviceStatus selectedCommand
 		{
 			get
 			{
@@ -36,7 +36,7 @@ namespace Lab4WithGUI
 			}
 		}
 
-		DeviceCommand currentDeviceStatus = new DeviceCommand();
+		DeviceStatus currentDeviceStatus = new DeviceStatus();
 
 		//Listening for incoming uart data
 		readonly Thread uartListener;
@@ -144,19 +144,11 @@ namespace Lab4WithGUI
 					else if (c == '#' || commandBuf.Length == BufSize) //End of message, or message too long
 					{
 						//Parse message
-
-						//First byte = type of command
-						char command = commandBuf[0];
-						if (command == 's') //Set state
-						{
-							char state = commandBuf[1];
-							char subState = commandBuf[2];
-							setGuiState(state, subState);
-						}
-						else if (command == 'c') //Set color
-						{
-							setGuiColor((byte)commandBuf[1], (byte)commandBuf[2], (byte)commandBuf[3]);
-						}
+						string statusCommandBuf = commandBuf;
+						int commandSize = 0;
+						while ((commandSize = readStatusCommand(statusCommandBuf)) > 0)
+							statusCommandBuf = statusCommandBuf.Substring(commandSize);
+						Invoke(new Action(() => updateGui()));
 					}
 					else
 					{
@@ -166,24 +158,54 @@ namespace Lab4WithGUI
 			}
 		}
 
-		//updates radio buttons in response to buttons on device
-		//Since this method is called from the background thread it needs to invoke the updates on UI thread
-		private void setGuiState(char state, char subState)
+		private int readStatusCommand(string buf)
 		{
-			if (state == 0)
-				singleColorRb.Invoke(new Action(() => singleColorRb.Checked = true));
-			else if (state == 1)
-				singleColorRb.Invoke(new Action(() => rainbowRb.Checked = true));
-			if (subState == 0)
-				constantRb.Invoke(new Action(() => constantRb.Checked = true));
-			else if (subState == 1)
-				blinkRb.Invoke(new Action(() => blinkRb.Checked = true));
+			if (buf.Length == 0)
+				return 0;
+			char command = buf[0];
+			int commandSize = 0;
+			if (command == 's') //Set state
+			{
+				currentDeviceStatus.State = buf[1];
+				currentDeviceStatus.SubState = buf[2];
+				commandSize = 3;
+			}
+			else if (command == 'c') //Set color
+			{
+				currentDeviceStatus.Color = Color.FromArgb((byte)buf[1], (byte)buf[2], (byte)buf[3]);
+				commandSize = 4;
+			}
+			else if (command == 's') //Set fade/blink speed
+			{
+				currentDeviceStatus.Speed = (byte)buf[1];
+				commandSize = 2;
+			}
+			return commandSize;
 		}
 
-		//Updates color in app in response to color selection button on device
+		//updates radio buttons
+		private void setGuiState(int state, int subState)
+		{
+			if (state == 0)
+				singleColorRb.Checked = true;
+			else if (state == 1)
+				rainbowRb.Checked = true;
+			if (subState == 0)
+				constantRb.Checked = true;
+			else if (subState == 1)
+				blinkRb.Checked = true;
+		}
+
+		//Updates color controls
 		private void setGuiColor(byte r, byte g, byte b)
 		{
 			colorBtn.Invoke(new Action(() => colorBtn.BackColor = Color.FromArgb(r, g, b)));
+		}
+
+		//Update speed fader
+		private void setGuiSpeed(byte speed)
+		{
+			speedTrackbar.Value = speed;
 		}
 
 		//Closes uart listening thread when app is closing
@@ -218,7 +240,7 @@ namespace Lab4WithGUI
 		private void commandsDgv_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
 		{
 			DataGridViewRow row = commandsDgv.Rows[e.RowIndex];
-			var status = new DeviceCommand()
+			var status = new DeviceStatus()
 			{
 				Delay = getCommandCellUint(row, 1),
 				Recurring = getCommandCellBool(row, 1),
@@ -283,6 +305,26 @@ namespace Lab4WithGUI
 				deviceCommands[e.RowIndex].Scheduled = getCommandCellBool(row, 3);
 			if (deviceCommands[e.RowIndex].Scheduled)
 				deviceCommands[e.RowIndex].send();
+		}
+
+		private void commandsDgv_SelectionChanged(object sender, EventArgs e)
+		{
+			updateGui();
+		}
+
+		private void updateGui()
+		{
+			if (commandsDgv.SelectedRows.Count == 0)
+				updateGui(currentDeviceStatus);
+			else
+				updateGui(deviceCommands[commandsDgv.SelectedRows[0].Index]);
+		}
+
+		private void updateGui(DeviceStatus deviceStatus)
+		{
+			setGuiState(deviceStatus.State, deviceStatus.SubState);
+			setGuiColor(deviceStatus.Color.R, deviceStatus.Color.G, deviceStatus.Color.B);
+			setGuiSpeed(deviceStatus.Speed);
 		}
 	}
 }
