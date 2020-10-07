@@ -130,6 +130,7 @@ namespace Lab4WithGUI
 					if (Uart.Port.BytesToRead > 0)
 					{
 						readByte = Uart.Port.ReadByte();
+						Console.Write((char)readByte);
 					}
 				}
 
