@@ -62,7 +62,7 @@ namespace Lab4WithGUI
 				(char)((Delay >> 8) & 0xff) +
 				(char)((Delay >> 16) & 0xff) +
 				(char)((Delay >> 24) & 0xff) +
-				(Rerun ? 1 : 0) +
+				(char)(Rerun ? 1 : 0) +
 				command + "#";
 
 			lock (Uart.Lock)
@@ -100,13 +100,6 @@ namespace Lab4WithGUI
 		internal void removeScheduling()
 		{
 			string message = $"!{scheduleId}r#";
-			//List<byte> bytes = new List<byte>();
-			//bytes.Add((byte)'!');
-			//for (int i = 0; i < scheduleId.Length; i++)
-			//	bytes.Add((byte)scheduleId[i]);
-			//bytes.Add((byte)'r');
-			//bytes.Add((byte)'#');
-
 			lock (Uart.Lock)
 				Uart.Port.Write(stringToBytes(message), 0, message.Length);
 		}

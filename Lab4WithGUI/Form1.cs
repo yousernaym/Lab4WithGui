@@ -35,7 +35,6 @@ namespace Lab4WithGUI
 
 		DeviceStatus currentDeviceStatus = new DeviceStatus();
 
-		//Listening for incoming uart data
 		readonly Thread uartListener;
 
 		public Form1()
@@ -190,19 +189,10 @@ namespace Lab4WithGUI
 				{
 					if (deviceCommands[i].ScheduleId == id)
 					{
-						if (!deviceCommands[i].Rerun) //Command should not be repeated so remove it
+						if (!deviceCommands[i].Rerun) //Command should not be repeated so uncheck Scheduled
 						{
-							//Remove row from DataGridView;
-							commandsDgv.Invoke(new Action(() => commandsDgv.Rows.RemoveAt(i)));
-							//Remove from model object
-							deviceCommands.RemoveAt(i);
-							//commandsDgv.Invoke(new Action(() => commandsDgv.Rows[i].Cells[ScheduledColumn].Value = false));
-							//deviceCommands[i].Scheduled = false;
-						}
-						else
-						{
-							//Update current row pointer
-							//commandsDgv.Invoke(new Action(() => commandsDgv.CurrentCell = commandsDgv.Rows[i].Cells[0]));
+							commandsDgv.Invoke(new Action(() => commandsDgv.Rows[i].Cells[ScheduledColumn].Value = false));
+							deviceCommands[i].Scheduled = false;
 						}
 						break;
 					}
@@ -364,7 +354,11 @@ namespace Lab4WithGUI
 			if (commandsDgv.SelectedRows.Count == 0)
 				updateGui(currentDeviceStatus);
 			else
-				updateGui(deviceCommands[commandsDgv.SelectedRows[0].Index]);
+			{
+				int index = commandsDgv.SelectedRows[0].Index;
+				if (index < deviceCommands.Count)
+					updateGui(deviceCommands[index]);
+			}
 		}
 
 		private void updateGui(DeviceStatus deviceStatus)
