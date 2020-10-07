@@ -38,7 +38,7 @@ namespace Lab4WithGUI
 			}
 		}
 		string colorCommandString => $"c{(char)Color.R}{(char)Color.G}{(char)Color.B}";
-		
+
 		public void sendState()
 		{
 			sendCommand(stateCommandString);
@@ -81,7 +81,7 @@ namespace Lab4WithGUI
 			sendCommand(stateCommandString + speedCommandString + colorCommandString);
 		}
 
-		public void setStatus(int state, int subState, Color ?color, int speed)
+		public void setStatus(int state, int subState, Color? color, int speed)
 		{
 			if (state >= 0)
 				State = state;
@@ -91,6 +91,19 @@ namespace Lab4WithGUI
 				Color = (Color)color;
 			if (speed >= 0)
 				Speed = (byte)speed;
+		}
+
+		internal void removeScheduling()
+		{
+			List<byte> bytes = new List<byte>();
+			bytes.Add((byte)'!');
+			for (int i = 0; i < scheduleId.Length; i++)
+				bytes.Add((byte)scheduleId[i]);
+			bytes.Add((byte)'r');
+			bytes.Add((byte)'#');
+
+			lock (Uart.Lock)
+				Uart.Port.Write(bytes.ToArray(), 0, bytes.Count);
 		}
 	}
 }

@@ -343,6 +343,8 @@ namespace Lab4WithGUI
 				deviceCommands[e.RowIndex].Scheduled = getCommandCellBool(row, ScheduledColumn);
 			if (deviceCommands[e.RowIndex].Scheduled)
 				deviceCommands[e.RowIndex].send();
+			else
+				deviceCommands[e.RowIndex].removeScheduling();
 		}
 
 		private void updateGui()

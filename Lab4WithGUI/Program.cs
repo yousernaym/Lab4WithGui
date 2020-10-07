@@ -43,13 +43,13 @@ namespace Lab4WithGUI
 					Uart.connect(portDlg.PortName);
 					return true;
 				}
-				catch (IOException ex)
-				{
-					MessageBox.Show(ex.Message);
-				}
 				catch (UnauthorizedAccessException ex)
 				{
 					MessageBox.Show(ex.Message + "\nClose the serial monitor darn it!");
+				}
+				catch (Exception ex) when (ex is IOException || ex is ArgumentException)
+				{
+					MessageBox.Show(ex.Message);
 				}
 			}
 			return false;
