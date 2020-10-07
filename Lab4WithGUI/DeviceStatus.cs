@@ -57,23 +57,27 @@ namespace Lab4WithGUI
 		//Adds ! to start and # to end of message
 		private void sendCommand(string command)
 		{
-			//Since we are sending binary data it seems we need to send a byte array,
-			//because sending a string will mess up bytes with values > 127
-			List<byte> bytes = new List<byte>();
-			bytes.Add((byte)'!');
-			for (int i = 0; i < scheduleId.Length; i++)
-				bytes.Add((byte)scheduleId[i]);
-			bytes.Add((byte)(Delay & 0xff));
-			bytes.Add((byte)((Delay >> 8) & 0xff));
-			bytes.Add((byte)((Delay >> 16) & 0xff));
-			bytes.Add((byte)((Delay >> 24) & 0xff));
-			bytes.Add((byte)(Rerun ? 1 : 0));
-			for (int i = 0; i < command.Length; i++)
-				bytes.Add((byte)command[i]);
-			bytes.Add((byte)'#');
+			string message = "!" + scheduleId +
+				(char)(Delay & 0xff) +
+				(char)((Delay >> 8) & 0xff) +
+				(char)((Delay >> 16) & 0xff) +
+				(char)((Delay >> 24) & 0xff) +
+				(Rerun ? 1 : 0) +
+				command + "#";
 
 			lock (Uart.Lock)
-				Uart.Port.Write(bytes.ToArray(), 0, bytes.Count);
+				Uart.Port.Write(stringToBytes(message), 0, message.Length);
+		}
+
+		private byte[] stringToBytes(string message)
+		{
+			//Since we are sending binary data to the device it seems we must convert to a byte array,
+			//because sending a string will mess up bytes with values > 127
+			//Using the Encoding class to do the conversion doisn't work either so I convert manually
+			var bytes = new List<byte>();
+			foreach (var c in message)
+				bytes.Add((byte)c);
+			return bytes.ToArray();
 		}
 
 		public void send()
@@ -95,15 +99,16 @@ namespace Lab4WithGUI
 
 		internal void removeScheduling()
 		{
-			List<byte> bytes = new List<byte>();
-			bytes.Add((byte)'!');
-			for (int i = 0; i < scheduleId.Length; i++)
-				bytes.Add((byte)scheduleId[i]);
-			bytes.Add((byte)'r');
-			bytes.Add((byte)'#');
+			string message = $"!{scheduleId}r#";
+			//List<byte> bytes = new List<byte>();
+			//bytes.Add((byte)'!');
+			//for (int i = 0; i < scheduleId.Length; i++)
+			//	bytes.Add((byte)scheduleId[i]);
+			//bytes.Add((byte)'r');
+			//bytes.Add((byte)'#');
 
 			lock (Uart.Lock)
-				Uart.Port.Write(bytes.ToArray(), 0, bytes.Count);
+				Uart.Port.Write(stringToBytes(message), 0, message.Length);
 		}
 	}
 }

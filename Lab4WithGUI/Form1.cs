@@ -48,7 +48,6 @@ namespace Lab4WithGUI
 			//Init device to default status
 			currentDeviceStatus.setStatus(0, 0, colorBtn.BackColor, 128);
 			currentDeviceStatus.send();
-
 		}
 
 		//Enables debug output
@@ -130,7 +129,7 @@ namespace Lab4WithGUI
 					if (Uart.Port.BytesToRead > 0)
 					{
 						readByte = Uart.Port.ReadByte();
-						Console.Write((char)readByte);
+						//Console.Write((char)readByte);
 					}
 				}
 
@@ -158,7 +157,8 @@ namespace Lab4WithGUI
 			int commandSize = 0;
 			while ((commandSize = readCommand(statusCommandBuf)) > 0)
 				statusCommandBuf = statusCommandBuf.Substring(commandSize);
-			Invoke(new Action(() => updateGui())); //Invoke on ui thread
+			
+			Invoke(new Action(() => updateGui())); 
 		}
 
 		private int readCommand(string buf)
@@ -190,11 +190,21 @@ namespace Lab4WithGUI
 				{
 					if (deviceCommands[i].ScheduleId == id)
 					{
-						if (!deviceCommands[i].Rerun)
+						if (!deviceCommands[i].Rerun) //Command should not be repeated so remove it
 						{
-							commandsDgv.Invoke(new Action(() => commandsDgv.Rows[i].Cells[ScheduledColumn].Value = false));
-							deviceCommands[i].Scheduled = false;
+							//Remove row from DataGridView;
+							commandsDgv.Invoke(new Action(() => commandsDgv.Rows.RemoveAt(i)));
+							//Remove from model object
+							deviceCommands.RemoveAt(i);
+							//commandsDgv.Invoke(new Action(() => commandsDgv.Rows[i].Cells[ScheduledColumn].Value = false));
+							//deviceCommands[i].Scheduled = false;
 						}
+						else
+						{
+							//Update current row pointer
+							//commandsDgv.Invoke(new Action(() => commandsDgv.CurrentCell = commandsDgv.Rows[i].Cells[0]));
+						}
+						break;
 					}
 				}
 				readCommands(buf.Substring(5));
@@ -340,11 +350,13 @@ namespace Lab4WithGUI
 			if (col == 2)  //Rerun
 				deviceCommands[e.RowIndex].Rerun = getCommandCellBool(row, RerunColumn);
 			else if (col == 3) //Scheduled
+			{
 				deviceCommands[e.RowIndex].Scheduled = getCommandCellBool(row, ScheduledColumn);
+				if (!deviceCommands[e.RowIndex].Scheduled)
+					deviceCommands[e.RowIndex].removeScheduling();
+			}
 			if (deviceCommands[e.RowIndex].Scheduled)
 				deviceCommands[e.RowIndex].send();
-			else
-				deviceCommands[e.RowIndex].removeScheduling();
 		}
 
 		private void updateGui()
