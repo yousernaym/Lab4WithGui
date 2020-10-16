@@ -254,10 +254,6 @@
 			this.Scheduled.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
 			this.Scheduled.Width = 60;
 			// 
-			// commandListBindingSource
-			// 
-			this.commandListBindingSource.DataSource = typeof(Lab4WithGUI.CommandList);
-			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
